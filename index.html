@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kris Recomp Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column console. Summary strip first, then detail panels. Tabs as a bottom bar on phones, a top rail on laptops.
+   One accent (indigo) marks the chest and arm priority; green, amber, red and blue are state only. */
+:root {
+  --bg: #F3F4F7; --surface: #FFFFFF; --ink: #151922; --mute: #5A6273; --line: #DCE0E8; --tint: #ECEEF4;
+  --accent: #4338CA; --accent-ink: #FFFFFF; --accent-soft: #E4E2FA;
+  --ok: #0E6E3E; --ok-bg: #DCF2E5; --warn: #835400; --warn-bg: #FAEDCB; --bad: #AE2216; --bad-bg: #FADFDB; --info: #1D4B88; --info-bg: #DFE9F7;
+  --chart-a: #4338CA; --chart-b: #8A93A6; --bm-off: #E4E7EE; --chart-grid: #E3E6EE;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1117; --surface: #161B24; --ink: #E6E9EF; --mute: #9AA3B4; --line: #2A3140; --tint: #1C2230;
+    --accent: #A29CFF; --accent-ink: #12102E; --accent-soft: #2A2754;
+    --ok: #74D7A3; --ok-bg: #12301F; --warn: #F0C35C; --warn-bg: #3A2C0B; --bad: #FF9D90; --bad-bg: #44201B; --info: #9DC1F5; --info-bg: #1A2A45;
+    --chart-a: #A29CFF; --chart-b: #6F788B; --bm-off: #232A38; --chart-grid: #252C3A; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1117; --surface: #161B24; --ink: #E6E9EF; --mute: #9AA3B4; --line: #2A3140; --tint: #1C2230;
+  --accent: #A29CFF; --accent-ink: #12102E; --accent-soft: #2A2754;
+  --ok: #74D7A3; --ok-bg: #12301F; --warn: #F0C35C; --warn-bg: #3A2C0B; --bad: #FF9D90; --bad-bg: #44201B; --info: #9DC1F5; --info-bg: #1A2A45;
+  --chart-a: #A29CFF; --chart-b: #6F788B; --bm-off: #232A38; --chart-grid: #252C3A; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num, td.n, th.n { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+
+/* shell */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 1120px; margin-inline: auto; padding-inline: 16px; padding-block: 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-weight: 800; font-stretch: 78%; font-size: 21px; letter-spacing: 0.01em; text-transform: uppercase; margin: 0; line-height: 1; }
+.brand small { display: block; font-family: var(--f-num); font-weight: 400; font-size: 11px; letter-spacing: 0.02em; text-transform: none; color: var(--mute); margin-top: 4px; font-stretch: 100%; }
+.spacer { flex: 1; }
+.tabs { display: flex; gap: 4px; }
+.tab { border: 0; background: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; color: var(--mute); cursor: pointer; }
+.tab[aria-current="page"] { background: var(--ink); color: var(--bg); }
+.tools { display: flex; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover { border-color: var(--mute); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.small { padding: 4px 9px; font-size: 13px; }
+.btn.danger { color: var(--bad); }
+select.btn { padding-right: 8px; }
+@media (max-width: 899px) {
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); justify-content: space-around; }
+  .tab { flex: 1; padding: 9px 4px; font-size: 13.5px; }
+  main { padding-bottom: 84px !important; }
+}
+main { max-width: 1120px; margin-inline: auto; padding-inline: 16px; padding-block: 18px 56px; display: flex; flex-direction: column; gap: 22px; }
+
+/* type */
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 28px; font-weight: 800; font-stretch: 85%; }
+h2 { font-size: 20px; font-weight: 750; font-stretch: 88%; letter-spacing: 0.005em; }
+h3 { font-size: 16px; font-weight: 700; font-stretch: 95%; }
+.eyebrow { font-family: var(--f-num); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+.mute { color: var(--mute); }
+.small { font-size: 13px; }
+.lede { color: var(--mute); max-width: 68ch; margin: 4px 0 0; }
+p { margin: 0; }
+
+/* blocks */
+section.blk { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; }
+.hd .mute { font-size: 13px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.panel.flat { background: transparent; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+ul.plain { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+.note { font-size: 12.5px; color: var(--mute); }
+.assume { font-size: 12px; color: var(--info); }
+.assume::before { content: "Assumption: "; font-weight: 700; }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 0; width: 100%; }
+
+/* summary strip: a sentence-like status line, not tiles */
+.strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.stat { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 13.5px; }
+.stat b { font-family: var(--f-num); font-weight: 600; }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; line-height: 1.6; }
+.ok { background: var(--ok-bg); color: var(--ok); } .warn { background: var(--warn-bg); color: var(--warn); }
+.bad { background: var(--bad-bg); color: var(--bad); } .info { background: var(--info-bg); color: var(--info); }
+.neutral { background: var(--tint); color: var(--mute); }
+.pri { background: var(--accent-soft); color: var(--accent); }
+.prirow td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.prilabel { color: var(--accent); font-weight: 700; }
+
+/* tables */
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mute); font-weight: 600; padding: 7px 8px; border-bottom: 1.5px solid var(--line); white-space: nowrap; }
+td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+tfoot td { border-top: 1.5px solid var(--ink); font-weight: 700; }
+tr.grp td { background: var(--tint); font-weight: 700; }
+
+/* forms */
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field label, .lab { font-size: 12px; color: var(--mute); font-weight: 600; }
+.inp { font-family: var(--f-num); font-size: 14px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); width: 100%; min-width: 0; }
+.inp.bad-in { border-color: var(--bad); background: var(--bad-bg); }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 5px 0; width: 34px; cursor: pointer; font-family: var(--f-num); font-size: 14px; border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 700; }
+.seg.fat button[data-v="1"][aria-pressed="true"], .seg.fat button[data-v="2"][aria-pressed="true"] { background: var(--bad); color: var(--surface); }
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
+/* today exercise cards */
+.ex { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ex.priority { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.ex-h { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.ex-name { font-family: var(--f-display); font-weight: 750; font-size: 17px; font-stretch: 90%; }
+.presc { font-family: var(--f-num); font-size: 13.5px; }
+.presc b { font-size: 15px; }
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: end; }
+.cue { font-size: 13px; color: var(--mute); }
+.exlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; }
+@media (max-width: 420px) { .exlist { grid-template-columns: 1fr; } }
+
+/* heat table */
+.heat td.c { text-align: center; font-family: var(--f-num); font-size: 12.5px; padding: 6px 2px; min-width: 34px; border-bottom: 2px solid var(--surface); }
+.heat td.c.lo { background: var(--bad-bg); color: var(--bad); }
+.heat td.c.in { background: var(--ok-bg); color: var(--ok); }
+.heat td.c.hi { background: var(--warn-bg); color: var(--warn); }
+.heat td.c.zero { color: var(--mute); }
+.heat td.c.cur { outline: 1.5px dashed var(--mute); outline-offset: -3px; }
+.heat th.c { text-align: center; padding: 6px 2px; font-size: 10.5px; letter-spacing: 0; }
+.heat td.m { white-space: nowrap; font-weight: 600; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+
+/* bars */
+.bar { position: relative; height: 12px; background: var(--tint); border-radius: 3px; min-width: 80px; }
+.bar i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; background: var(--chart-b); }
+.bar .band { position: absolute; top: -2px; bottom: -2px; border-left: 1.5px solid var(--ok); border-right: 1.5px solid var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); }
+.mbar { display: grid; grid-template-columns: 88px 1fr 120px; gap: 10px; align-items: center; }
+@media (max-width: 520px) { .mbar { grid-template-columns: 1fr; gap: 4px; } }
+
+/* charts */
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart text { fill: var(--mute); font-family: var(--f-num); font-size: 11px; }
+svg.chart .grid { stroke: var(--chart-grid); stroke-width: 1; }
+svg.chart .axis { stroke: var(--line); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--mute); }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+
+/* meal strip */
+.mstrip { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 4px; }
+.mcell { height: 44px; border-radius: 5px; display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--f-num); font-size: 10.5px; line-height: 1.15; border: 1px solid transparent; }
+.c-fridge { background: var(--info-bg); color: var(--info); }
+.c-freeze { background: var(--tint); color: var(--ink); border-color: var(--line); }
+.c-have { background: var(--ok-bg); color: var(--ok); }
+.c-part { background: var(--warn-bg); color: var(--warn); }
+.c-need { color: var(--bad); border: 1.5px dashed var(--bad); }
+
+/* data drawer */
+.drawer { border-bottom: 1px solid var(--line); background: var(--surface); }
+.drawer-in { max-width: 1120px; margin-inline: auto; padding-inline: 16px; padding-block: 14px; display: flex; flex-direction: column; gap: 10px; }
+.msg { padding: 9px 12px; border-radius: 8px; font-size: 14px; }
+textarea.inp { min-height: 90px; font-size: 12px; }
+.empty { border: 1.5px dashed var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+details > summary { cursor: pointer; font-weight: 600; }
+details[open] > summary { margin-bottom: 8px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 14px; }
+.kv dt { color: var(--mute); }
+.kv dd { margin: 0; font-family: var(--f-num); }
+.ladder { display: flex; gap: 4px; flex-wrap: wrap; }
+.step { font-family: var(--f-num); font-size: 12.5px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); }
+.step.now { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.step.done { background: var(--tint); color: var(--mute); text-decoration: line-through; }
+@media (prefers-reduced-motion: no-preference) { .bar i { transition: width .3s ease; } }
+.bmap { max-width: 860px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+#bodymap { scroll-margin-top: 90px; }
+.bm-svg { width: 100%; max-width: 420px; height: auto; }
+.bm-list { display: grid; gap: 6px; }
+.bm-row { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13.5px; }
+.bm-sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+@media (max-width: 640px) { .bmap { grid-template-columns: minmax(0, 1fr); } .bm-svg { margin: 0 auto; display: block; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===== Reference data copied from Kris_Strength_Tracker_v2.xlsx and meal_prep.html. Nothing here is invented; derived values are marked. ===== */
+const REF = {
+  blockStart: "2026-09-28",        // Weekly Log Q5 (Week 12) and Block 2 Plan "28 Sep to 25 Oct"
+  blockWeeks: 4,
+  eraAEnd: "2025-12-16",           // Era A: different dumbbell set, never audited against the plate table
+  currentFrom: "2026-06-22",       // before this date: marathon-build phase
+  farmerNoteFrom: "2026-10-02",    // the F5 Ft3 T3-1-1 note format starts now
+  friFlyFrom: "2026-10-02",        // Weekly Log: "the new Friday starts Fri 2 Oct"
+  shiftStart: "13:00", lateFinish: "12:15", // Block 2 Plan finding 5
+  weekNumberAtBlockStart: 12
+};
+
+// Equipment sheet, columns A:D (combined) and F:H (single)
+const PAIR = [
+  [1,"bar only (0.5kg)"],[6,"bar + 1.25kg"],[7,"bar + 1.5kg"],[9,"bar + 2kg"],[11,"bar + 2.5kg"],[12,"bar + 1.25kg + 1.5kg"],[13,"bar + 3kg"],
+  [14,"bar + 1.25kg + 2kg"],[15,"bar + 1.5kg + 2kg"],[16,"bar + 1.25kg + 2.5kg"],[17,"bar + 1.5kg + 2.5kg"],[18,"bar + 1.25kg + 3kg"],[19,"bar + 1.5kg + 3kg"],
+  [20,"bar + 1.25kg + 1.5kg + 2kg"],[21,"bar + 2kg + 3kg"],[22,"bar + 1.25kg + 1.5kg + 2.5kg"],[23,"bar + 2.5kg + 3kg"],[24,"bar + 1.25kg + 1.5kg + 3kg"],
+  [25,"bar + 1.5kg + 2kg + 2.5kg"],[26,"bar + 1.25kg + 2kg + 3kg"],[27,"bar + 1.5kg + 2kg + 3kg"],[28,"bar + 1.25kg + 2.5kg + 3kg"],[29,"bar + 1.5kg + 2.5kg + 3kg"],
+  [30,"bar + 1.25kg + 1.5kg + 2kg + 2.5kg"],[31,"bar + 2kg + 2.5kg + 3kg"],[32,"bar + 1.25kg + 1.5kg + 2kg + 3kg"],[34,"bar + 1.25kg + 1.5kg + 2.5kg + 3kg"],
+  [36,"bar + 1.25kg + 2kg + 2.5kg + 3kg"],[37,"bar + 1.5kg + 2kg + 2.5kg + 3kg"]
+];
+const SINGLE = [
+  [0.5,"bar only (0.5kg)"],[3,"bar + 1.25kg"],[3.5,"bar + 1.5kg"],[4.5,"bar + 2kg"],[5.5,"bar + 2.5kg"],[6,"bar + 1.25kg + 1.5kg"],[6.5,"bar + 3kg"],
+  [7,"bar + 1.25kg + 2kg"],[7.5,"bar + 1.5kg + 2kg"],[8,"bar + 1.25kg + 2.5kg"],[8.5,"bar + 2x 2kg"],[9,"bar + 1.25kg + 3kg"],[9.5,"bar + 2kg + 2.5kg"],
+  [10,"bar + 1.25kg + 1.5kg + 2kg"],[10.5,"bar + 2x 2.5kg"],[11,"bar + 1.25kg + 2x 2kg"],[11.5,"bar + 2.5kg + 3kg"],[12,"bar + 1.25kg + 2kg + 2.5kg"],
+  [12.5,"bar + 2x 3kg"],[13,"bar + 1.25kg + 2x 2.5kg"],[13.5,"bar + 2x 2kg + 2.5kg"],[14,"bar + 1.25kg + 2.5kg + 3kg"],[14.5,"bar + 2kg + 2x 2.5kg"],
+  [15,"bar + 1.25kg + 2x 3kg"],[15.5,"bar + 2kg + 2.5kg + 3kg"],[16,"bar + 1.25kg + 2x 2kg + 2.5kg"],[16.5,"bar + 2x 2.5kg + 3kg"],[17,"bar + 1.25kg + 2kg + 2x 2.5kg"],
+  [17.5,"bar + 2.5kg + 2x 3kg"],[18,"bar + 1.25kg + 2kg + 2.5kg + 3kg"],[18.5,"bar + 2x 2kg + 2x 2.5kg"],[19,"bar + 1.25kg + 2x 2.5kg + 3kg"],
+  [19.5,"bar + 2x 2kg + 2.5kg + 3kg"],[20,"bar + 1.25kg + 2.5kg + 2x 3kg"],[20.5,"bar + 2kg + 2x 2.5kg + 3kg"],[21.5,"bar + 2kg + 2.5kg + 2x 3kg"],[22.5,"bar + 2x 2.5kg + 2x 3kg"]
+];
+const PAIR_W = PAIR.map(p => p[0]), SINGLE_W = SINGLE.map(p => p[0]);
+const PAIR_CEIL = 37, SINGLE_CEIL = 22.5;
+
+// Muscle groups and weekly hard-set targets (your message). min/max; max null = open ended.
+const MUSCLES = [
+  { id: "chest", name: "Chest", min: 12, max: 20, pri: true, planned: 16 },
+  { id: "biceps", name: "Biceps", min: 12, max: 20, pri: true, planned: 12 },
+  { id: "triceps", name: "Triceps", min: 12, max: 20, pri: true, planned: 12 },
+  { id: "forearms", name: "Forearms", min: 6, max: null, pri: false, planned: 8 },
+  { id: "delts", name: "Side + rear delts", min: 6, max: null, pri: false, planned: 9 },
+  { id: "back", name: "Back", min: 6, max: null, pri: false, planned: 6 },
+  { id: "quads", name: "Quads", min: 6, max: null, pri: false, planned: 9 },
+  { id: "glutes", name: "Glutes + hams", min: 6, max: null, pri: false, planned: 6 },
+  { id: "calves", name: "Calves", min: 6, max: null, pri: false, planned: 3 },
+  { id: "core", name: "Core", min: 3, max: null, pri: false, planned: 3 }
+];
+
+/* Exercise list. type/load/ceiling/techUntil from the Exercise Guide (columns H:K). hevy = titles in the Hevy export.
+   mus = muscle mapping, direct 1.0 and indirect 0.5. The mapping is an assumption built from the guide's "Target muscles" column. */
+const EXERCISES = [
+  { id: "wpu", name: "Weighted Push-Up (Deficit)", hevy: ["Push Up (Weighted)"], type: "Compound", load: "Pair", ceil: null, d: ["chest"], i: ["triceps"] },
+  { id: "fp", name: "Floor Press", hevy: ["Floor Press (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["chest"], i: ["triceps"] },
+  { id: "fly", name: "Chest Fly (Mon)", hevy: ["Chest Fly (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["chest"], i: [] },
+  { id: "fly_fri", name: "Chest Fly (Fri)", hevy: [], variantOf: "fly", type: "Compound", load: "Pair", ceil: 37, d: ["chest"], i: [] },
+  { id: "row", name: "Bent-Over Row", hevy: ["Bent Over Row (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["back"], i: ["biceps"] },
+  { id: "row_bo", name: "Bent-Over Row (back-off)", hevy: [], variantOf: "row", type: "Compound", load: "Pair", ceil: 37, tech: "2026-10-11", d: ["back"], i: ["biceps"] },
+  { id: "rfly", name: "Reverse Fly", hevy: ["Rear Delt Reverse Fly (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["delts"], i: ["back"] },
+  { id: "lat", name: "Lateral Raise", hevy: ["Lateral Raise (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["delts"], i: [] },
+  { id: "sp", name: "Shoulder Press", hevy: ["Shoulder Press (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, status: "Shelved", d: [], i: ["delts", "triceps"] },
+  { id: "fsq", name: "Front Squat", hevy: ["Front Squat"], type: "Compound", load: "Pair", ceil: 37, d: ["quads"], i: ["glutes"] },
+  { id: "rdl", name: "RDL", hevy: ["Romanian Deadlift (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["glutes"], i: [] },
+  { id: "ss", name: "Split Squat", hevy: ["Split Squat (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["quads"], i: ["glutes"] },
+  { id: "ht", name: "Hip Thrust", hevy: ["Hip Thrust (Barbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["glutes"], i: [] },
+  { id: "lunge", name: "Dumbbell Lunge", hevy: ["Lunge (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["quads"], i: ["glutes"] },
+  { id: "calf", name: "Calf Raise", hevy: ["Standing Calf Raise (Dumbbell)"], type: "Compound", load: "Pair", ceil: 37, d: ["calves"], i: [] },
+  { id: "ppt", name: "Plank Pull-Through", hevy: ["Plank Pull Through"], type: "Compound", load: "Single", ceil: 22.5, d: ["core"], i: [] },
+  { id: "cgfp", name: "Close-Grip Floor Press", hevy: ["Floor Press - Close Grip"], type: "Compound", load: "Pair", ceil: 37, d: ["triceps"], i: ["chest"] },
+  { id: "kb", name: "Tricep Kickback", hevy: ["Triceps Kickback (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["triceps"], i: [] },
+  { id: "ote", name: "Overhead Tricep Extension", hevy: ["Triceps Extension (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["triceps"], i: [] },
+  { id: "curl", name: "Bicep Curl (wall)", hevy: ["Bicep Curl (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["biceps"], i: [] },
+  { id: "hammer", name: "Hammer Curl", hevy: ["Hammer Curl (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["biceps"], i: ["forearms"] },
+  { id: "rcurl", name: "Reverse Curl", hevy: ["Reverse Curl (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, d: ["forearms"], i: ["biceps"] },
+  { id: "fw", name: "Farmer's Walk", hevy: ["Farmers Walk", "Farmer's Walk"], type: "Compound", load: "Pair", ceil: 37, timed: true, d: ["forearms"], i: [] },
+  { id: "conc", name: "Concentration Curl", hevy: ["Concentration Curl"], type: "Isolation", load: "Pair", ceil: null, d: ["biceps"], i: [] },
+  { id: "wrist", name: "Wrist Curl", hevy: ["Seated Palms Up Wrist Curl"], type: "Isolation", load: "Pair", ceil: null, d: ["forearms"], i: [] },
+  { id: "incline", name: "Incline Curl", hevy: ["Seated Incline Curl (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, status: "Retired", d: ["biceps"], i: [] },
+  { id: "zottman", name: "Zottman Curl", hevy: ["Zottman Curl (Dumbbell)"], type: "Isolation", load: "Pair", ceil: null, status: "Retired", d: ["biceps"], i: ["forearms"] },
+  { id: "deadbug", name: "Dead Bug", hevy: ["Dead Bug"], type: "BW", load: "BW", ceil: null, status: "Shelved", d: ["core"], i: [] },
+  // History-only titles (not in the Block 2 plan)
+  { id: "birddog", name: "Bird Dog", hevy: ["Bird Dog"], type: "BW", load: "BW", status: "History", d: ["core"], i: [] },
+  { id: "legraise", name: "Lying Leg Raise", hevy: ["Lying Leg Raise"], type: "BW", load: "BW", status: "History", d: ["core"], i: [] },
+  { id: "bridge", name: "Glute Bridge", hevy: ["Glute Bridge"], type: "BW", load: "BW", status: "History", d: ["glutes"], i: [] },
+  { id: "goblet", name: "Goblet Squat", hevy: ["Goblet Squat"], type: "Compound", load: "Pair", status: "History", d: ["quads"], i: ["glutes"] },
+  { id: "renegade", name: "Renegade Row", hevy: ["Renegade Row (Dumbbell)"], type: "Compound", load: "Pair", status: "History", d: ["back"], i: ["biceps", "core"] },
+  { id: "dbrow", name: "Dumbbell Row", hevy: ["Dumbbell Row"], type: "Compound", load: "Pair", status: "History", d: ["back"], i: ["biceps"] },
+  { id: "frontraise", name: "Front Raise", hevy: ["Front Raise (Dumbbell)"], type: "Isolation", load: "Pair", status: "History", d: [], i: [] },
+  { id: "sidebend", name: "Side Bend", hevy: ["Side Bend (Dumbbell)"], type: "Isolation", load: "Pair", status: "History", d: ["core"], i: [] },
+  { id: "shrug", name: "Shrug", hevy: ["Shrug (Dumbbell)"], type: "Isolation", load: "Pair", status: "History", d: [], i: [] },
+  { id: "twist", name: "Russian Twist", hevy: ["Russian Twist (Weighted)"], type: "Isolation", load: "Pair", status: "History", d: ["core"], i: [] },
+  { id: "cgpu", name: "Close-Grip Push-Up", hevy: ["Push Up - Close Grip"], type: "BW", load: "BW", status: "History", d: ["triceps"], i: ["chest"] },
+  { id: "pu", name: "Push-Up", hevy: ["Push Up"], type: "BW", load: "BW", status: "History", d: ["chest"], i: ["triceps"] }
+];
+
+// Block 2 plan (Weekly Log Week 12 template). w = prescribed combined kg (single kg for Plank Pull-Through).
+const PLAN = {
+  1: { name: "Upper A", focus: "Chest + back + shoulders", items: [
+    { ex: "wpu", sets: 3, reps: 12, w: 12, cue: "Hevy: 12kg x12. Need two clean sessions before 13kg. 3s down, 1s pause." },
+    { ex: "fp", sets: 4, reps: 12, w: 37, cue: "At ceiling (37kg since Jul 6, RPE 7.5 flat). Tempo 3-1-1 baseline, 4-1-1 next week." },
+    { ex: "fly", sets: 3, reps: 12, w: 27, cue: "Hold 27. The 25 to 27 jump on Sep 21 skipped the gate. No increase until Form 5, Fatigue 3+." },
+    { ex: "row", sets: 3, reps: 12, w: 37, cue: "At ceiling. Tempo 2-1-3: slow lowering, 1s squeeze at the top." },
+    { ex: "row_bo", sets: 3, reps: 15, w: 32, cue: "NEW, replaces Shoulder Press. Technique week. Lighter, 15 reps, same cues." },
+    { ex: "rfly", sets: 3, reps: 15, w: 19, cue: "Hevy: 19kg x15. The 16 to 19 jump was +3kg, so hold until Form 5, Fatigue 3+." },
+    { ex: "lat", sets: 3, reps: 15, w: 13, cue: "Hevy: 13kg x15. 8 and 10kg are not real weights. Lead with elbows." } ] },
+  2: { name: "Lower", focus: "Quads + posterior chain + core", items: [
+    { ex: "fsq", sets: 3, reps: 12, w: 37, cue: "At ceiling since Aug 25. Tempo 3-1-1 baseline, then 4-1-1." },
+    { ex: "rdl", sets: 3, reps: 12, w: 37, cue: "At ceiling (12 flat sessions). Tempo 3-1-1 baseline, then 4-1-1." },
+    { ex: "ss", sets: 3, reps: 12, w: 30, cue: "Hevy: 30kg x12. Seven sessions flat, gate needs two clean sessions for 31kg." },
+    { ex: "ht", sets: 3, reps: 15, w: 37, cue: "At ceiling (19 flat sessions). Tempo 2-2-2 baseline, working up to 2-4-2." },
+    { ex: "lunge", sets: 3, reps: 12, w: 30, cue: "Hevy: 30kg. The 25 to 30 jump on Sep 22 was +5kg. Hold until the gate passes twice." },
+    { ex: "calf", sets: 3, reps: 12, w: 37, cue: "At ceiling. Reps were cut from 20 to 12 on Sep 2: confirm this was intended." },
+    { ex: "ppt", sets: 3, reps: 12, w: 22.5, cue: "Single-DB ceiling is 22.5kg. Hevy showed 23kg, which does not exist. Log 22.5." } ] },
+  3: { name: "Active recovery", focus: "Mobility, swim optional", items: [
+    { act: "Stairs / Brisk Walk", dose: "30-45 min", cue: "Zone 2: 117-136 bpm." },
+    { act: "Hip Flexor Lunge Stretch", dose: "60s each side", cue: "Never started: 8+ weeks overdue." },
+    { act: "Doorframe Chest Stretch", dose: "45s each side", cue: "No equipment needed." },
+    { act: "Cat-Cow", dose: "10 reps", cue: "Slow reps." },
+    { act: "Standing Hamstring Hinge", dose: "60s each side", cue: "Total mobility block: 10 minutes." } ] },
+  4: { name: "Arms A", focus: "Triceps + biceps + forearms", items: [
+    { ex: "cgfp", sets: 3, reps: 12, w: 37, cue: "At ceiling. RPE fell 7.5 to 7.0 over 5 sessions: first lift ready for the tempo step." },
+    { ex: "kb", sets: 3, reps: 12, w: 19, cue: "13 flat sessions. Dead-stop, drive, hold, 3s eccentric, dead-stop." },
+    { ex: "ote", sets: 3, reps: 12, w: 21, cue: "Hevy: 21kg. Moved 19 to 21 in 5 sessions. Hold until Form 5, Fatigue 3+." },
+    { ex: "curl", sets: 3, reps: 12, w: 25, cue: "25kg flat for 7 sessions. If Form 5 and Fatigue 3+ this week, 26kg is allowed (isolation)." },
+    { ex: "hammer", sets: 3, reps: 12, w: 25, cue: "25kg flat for 7 sessions. Same rule: one clean session opens 26kg." },
+    { ex: "rcurl", sets: 3, reps: 12, w: 24, cue: "Hevy: 24kg. Left hand leads, 3s count out loud." },
+    { ex: "fw", sets: 2, secs: 90, w: 37, cue: "At ceiling. Log DURATION, not distance. Fatigue 3+ opens 105s." } ] },
+  5: { name: "Chest + Arms B", focus: "Fly first, then biceps + triceps", items: [
+    { ex: "fly_fri", sets: 3, reps: 15, w: 24, cue: "NEW Friday: lighter and slower than Monday. 4s down, 1s stretch pause." },
+    { ex: "wpu", sets: 3, reps: 12, w: 12, cue: "After the fly so the chest ends the set, not the triceps." },
+    { ex: "curl", sets: 3, reps: 12, w: 25, cue: "Replaces incline curl. Add a 1s pause at full arm extension." },
+    { ex: "conc", sets: 3, reps: 12, w: 19, cue: "Hevy: 19kg. Elbow braced on inner thigh, 3s eccentric." },
+    { ex: "kb", sets: 3, reps: 12, w: 19, cue: "Second weekly session. Same eccentric fix applies." },
+    { ex: "lat", sets: 3, reps: 15, w: 13, cue: "Second weekly session. Same cues as Monday." },
+    { ex: "wrist", sets: 3, reps: 15, w: 13, cue: "Hevy: 13kg x15. Slow eccentric, forearm rested on thigh." } ] },
+  6: { name: "Rest", focus: "Optional weighted stairs", items: [
+    { act: "Weighted Stairs (optional)", dose: "20-30 min", cue: "10kg in backpack. Zone 3-4." } ] },
+  0: { name: "Easy Zone 2 run", focus: "About 60 min", items: [
+    { act: "Easy Zone 2 Run", dose: "about 60 min", cue: "Zone 2: 117-136 bpm." } ] }
+};
+
+// Block 2 Plan, section 2: tempo ladder at the ceiling (Week 1 to Week 4) and the gate text.
+const TEMPO = [
+  { ex: "cgfp", steps: ["3-1-1", "4-1-1", "4-2-1", "4-2-1"], gate: "RPE fell to 7.0: ready first. Step up only after two sessions Form 5, Fatigue 3+, tempo hit every rep." },
+  { ex: "fp", steps: ["3-1-1", "4-1-1", "4-1-1", "4-1-1"], gate: "RPE 7.5 for 11 sessions. Count the lowering out loud, touch elbows to the floor." },
+  { ex: "row", steps: ["2-1-3", "2-2-3", "2-2-4", "2-2-4"], gate: "Pause at the top removes momentum and loads the lats." },
+  { ex: "fsq", steps: ["3-1-1", "4-1-1", "4-2-1", "4-2-1"], gate: "RPE has come down 8.0 to 7.5 since Aug 25." },
+  { ex: "rdl", steps: ["3-1-1", "4-1-1", "4-2-1", "4-2-1"], gate: "Flat 12 sessions. The slow lowering is the hamstring stimulus." },
+  { ex: "ht", steps: ["2-2-2", "2-3-2", "2-4-2", "2-4-2"], gate: "19 sessions flat. Count the pause out loud every rep." },
+  { ex: "calf", steps: ["3-2-1", "4-2-1", "5-2-1", "6-2-1"], gate: "6-count descent is the target. Reps were cut from 20 to 12 on Sep 2." },
+  { ex: "fw", steps: ["90s", "90s", "105s", "105s"], secs: true, gate: "105s only if Fatigue 3+. Log duration, not distance." },
+  { ex: "ppt", steps: ["3s drag", "3s drag", "3s + 1s", "3s + 1s"], free: true, gate: "Single-DB ceiling 22.5kg. Do not log 23." }
+];
+
+// Block 2 Plan, section 3
+const HOLDS = [
+  ["fly", 27, "25 to 27 on Sep 21 after the handoff said the gate was closed."],
+  ["rfly", 19, "16 to 19 on Sep 21 (+3kg). Earlier 15 to 16 also had one session at 15."],
+  ["lunge", 30, "25 to 30 on Sep 22 (+5kg in one step)."],
+  ["conc", 19, "15 to 16 (Sep 11) then 16 to 19 (Sep 18, +3kg)."],
+  ["wrist", 13, "11 to 13 on Sep 11."],
+  ["lat", 13, "11 to 13 on Sep 11. 8 and 10kg were logged earlier: neither exists."],
+  ["ppt", 22.5, "Logged 22 and 23kg: neither is a valid single. 22.5 is the ceiling."]
+];
+
+// Your message: current Hevy weights (combined kg) to cross-check against the export.
+const STATED_CURRENT = { fp: 37, cgfp: 37, row: 37, fsq: 37, rdl: 37, ht: 37, calf: 37, fly: 27, sp: 32, wpu: 12, rfly: 19, lat: 13, ss: 30, lunge: 30, kb: 19, ote: 21, curl: 25, hammer: 25, conc: 19, rcurl: 24, wrist: 13, ppt: 22.5 };
+
+// Nutrition: flat day targets (your message, matches meal_prep.html)
+const TARGETS = { kcal: [2200, 2300], p: [145, 160], c: [250, 290], f: [55, 65], fiber: [30, 35], addedSugarMax: 35, waterL: [3, 3.5] };
+
+/* Foods. per100 = macros per 100 g (per piece for "pc" foods, per 100 ml for "ml"). null = not in your files, shows "needs macros".
+   Values marked derived were back-calculated from meal_prep.html meal totals. Prices only where you gave them. */
+const FOODS_SEED = [
+  { id: "chicken", name: "Roast chicken, boneless", unit: "g", price: 598, priceQty: 1519, usable: 92, ratio: 1, per100: { kcal: 198, p: null, c: null, f: null, fiber: 0, sugar: null }, src: "kcal derived: lunch 813 minus rice 416 minus veg 80, over 160 g" },
+  { id: "rice", name: "Rice, cooked", unit: "g", price: 60, priceQty: 1000, usable: 100, ratio: 2.8, per100: { kcal: 130, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per kg uncooked, 2.8 cooked g per raw g. kcal derived: 320 g = 416 kcal" },
+  { id: "veg", name: "Mixed veg (cali mix), cooked", unit: "g", price: 59.75, priceQty: 500, usable: 100, ratio: 1, per100: { kcal: 32, p: null, c: null, f: null, fiber: 2.8, sugar: null }, src: "Derived: 250 g = 80 kcal, about 7 g fiber" },
+  { id: "beans", name: "Mung beans (monggo), cooked", unit: "g", price: null, priceQty: 1000, usable: 100, ratio: 2.5, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per kg dry. About 240 g dry makes 600 g cooked" },
+  { id: "egg", name: "Egg", unit: "pc", price: null, priceQty: 1, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per egg" },
+  { id: "milk", name: "Fresh milk", unit: "ml", price: null, priceQty: 1000, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per litre" },
+  { id: "banana", name: "Banana", unit: "pc", price: null, priceQty: 1, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price each" },
+  { id: "sky", name: "Skyflakes", unit: "pc", price: null, priceQty: null, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per pack; enter pieces per pack as the quantity" },
+  { id: "kewpie", name: "Kewpie mayo", unit: "g", price: null, priceQty: null, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Price per bottle; enter bottle grams as the quantity" },
+  { id: "coffee", name: "Black coffee", unit: "pc", price: null, priceQty: 1, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "" },
+  { id: "creatine", name: "Creatine monohydrate", unit: "g", price: null, priceQty: null, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "" }
+];
+
+// meal_prep.html "The day, meal by meal". page = the page's own macro estimate for exactly these amounts.
+const MEALS_SEED = [
+  { id: "water", time: "On waking", name: "Water", items: [], text: "500 ml before coffee. Aim for 3 to 3.5 L through the day.", page: { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 } },
+  { id: "pre", time: "9:30 AM", name: "Pre-workout", items: [["coffee", 1], ["milk", 200], ["banana", 1], ["creatine", 5]], page: { kcal: 235, p: 8, c: 37, f: 7, fiber: 3 } },
+  { id: "post", time: "12:00 PM", name: "After training", items: [], text: "Water only. Whey is out; the extra chicken at lunch and dinner replaces its 25 g of protein.", page: { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 } },
+  { id: "lunch", time: "2:00 PM", name: "Lunch", items: [["chicken", 160], ["rice", 320], ["veg", 250]], page: { kcal: 813, p: 59, c: 107, f: 15, fiber: 8 } },
+  { id: "mid", time: "5:30 PM", name: "Mid-shift", items: [["egg", 3], ["kewpie", 7], ["sky", 4]], page: { kcal: 385, p: 22, c: 22, f: 23, fiber: 0 } },
+  { id: "dinner", time: "8:00 PM", name: "Dinner", items: [["chicken", 160], ["rice", 240], ["veg", 250], ["beans", 100]], page: { kcal: 814, p: 64, c: 103, f: 15, fiber: 16 } }
+];
+const PAGE_DAY = { kcal: 2247, p: 153, c: 269, f: 60, fiber: 27, sugarTotal: 41 };
+
+// meal_prep.html stock and coverage notes
+const STOCK_SEED = {
+  chickenG: 1519, chickenCost: 598, chickenUsable: 92, chickenCooked: "2026-10-02",
+  vegG: 500, vegCost: 59.75, riceCookedG: null, riceNote: "7 cups (weigh to confirm)", beansG: 0,
+  startDate: "2026-10-02", startMeal: "dinner", meals: 12, fridgeDays: 3
+};
+
+// Nutrition & Supplements sheet, supplement checklist and open to-dos
+const CHECKS_SEED = [
+  { id: "creatine", kind: "Supplement", name: "Creatine monohydrate", detail: "5g pre-workout. Tell the doctor before any blood draw (raises creatinine).", status: "Taking" },
+  { id: "whey", kind: "Supplement", name: "Whey isolate", detail: "Workbook says Taking. meal_prep.html and your message say whey is out.", status: "Stopped" },
+  { id: "sovit", kind: "Supplement", name: "Sovit-Max", detail: "1 capsule with lunch. Watsons PH, about 14 PHP per capsule. Replaces Enervon Activ.", status: "Not purchased" },
+  { id: "d3", kind: "Supplement", name: "Vitamin D3 (cholecalciferol)", detail: "5,000 IU with lunch (needs fat). Mercury Drug. 8 weeks, then 1,000-2,000 IU.", status: "Not purchased" },
+  { id: "fishoil", kind: "Supplement", name: "Fish oil", detail: "1,000mg EPA+DHA with dinner. Any pharmacy.", status: "Not purchased" },
+  { id: "mag", kind: "Supplement", name: "Magnesium glycinate (optional)", detail: "200mg before bed. Optional.", status: "Not purchased" },
+  { id: "enervon", kind: "Supplement", name: "Enervon Activ", detail: "1 tablet with lunch. Still in use until Sovit-Max is bought.", status: "Taking" },
+  { id: "buy", kind: "To-do", name: "Buy Sovit-Max, vitamin D3, fish oil", detail: "Mercury Drug / Watsons. Cholecalciferol (D3), not D2.", status: "Not started" },
+  { id: "mobility", kind: "To-do", name: "Start Wednesday mobility (10 min)", detail: "Prescribed since July, never started.", status: "Not started" },
+  { id: "weigh", kind: "To-do", name: "Weigh every morning and use the 7-day average", detail: "Body tab.", status: "Not started" },
+  { id: "blood", kind: "To-do", name: "Book the annual blood panel", detail: "Creatinine + eGFR, cystatin C, BUN, uric acid, lipids, FBS, CBC, 25-OH vitamin D. Mention the creatine.", status: "Not started" },
+  { id: "bench", kind: "To-do", name: "Buy a fold-down bench", detail: "Unlocks bench press and flyes for chest (full stretch), plus a stable incline curl.", status: "Not started" }
+];
+const STATUS_OPTS = { Supplement: ["Not purchased", "Purchased", "Taking", "Stopped"], "To-do": ["Not started", "In progress", "Done"] };
+
+// Goals: from Body Metrics B5:B10 and your message. Body data, so only filled from the embedded data or an import.
+const GOAL_EMPTY = { startDate: "", startKg: null, targetKg: null, targetDate: "", startBf: null, targetBfLo: null, targetBfHi: null, projPace: null };
+// Nutrition sheet B15 and B19, used for the projected pace
+const ENERGY = { tdee: 2719, kcalPerKgFat: 7700 };
+
+/* ===== Helpers ===== */
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const isNum = v => typeof v === "number" && isFinite(v);
+const fmt = (v, d = 0) => isNum(v) ? v.toLocaleString("en-PH", { minimumFractionDigits: d, maximumFractionDigits: d }) : "-";
+const fkg = v => isNum(v) ? (Math.round(v * 10) / 10).toString() : "-";
+const peso = v => isNum(v) ? "₱" + v.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-";
+const pad = n => String(n).padStart(2, "0");
+const ymdLocal = (dt = new Date()) => dt.getFullYear() + "-" + pad(dt.getMonth() + 1) + "-" + pad(dt.getDate());
+const toUTC = s => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+const fromUTC = t => { const d = new Date(t); return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()); };
+const addDays = (s, n) => fromUTC(toUTC(s) + n * 86400000);
+const dow = s => new Date(toUTC(s)).getUTCDay();
+const daysBetween = (a, b) => Math.round((toUTC(b) - toUTC(a)) / 86400000);
+const weekStart = s => addDays(s, -((dow(s) + 6) % 7));
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dshort = s => s ? DOW[dow(s)] + " " + Number(s.slice(8)) + " " + MON[Number(s.slice(5, 7)) - 1] : "-";
+const dmd = s => s ? Number(s.slice(8)) + " " + MON[Number(s.slice(5, 7)) - 1] : "-";
+const hm = m => isNum(m) ? (((Math.floor(m / 60) + 11) % 12) + 1) + ":" + pad(m % 60) + (m >= 720 ? " PM" : " AM") : "-";
+const EX = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
+const TITLE2EX = {}; EXERCISES.forEach(e => e.hevy.forEach(t => TITLE2EX[t.toLowerCase()] = e.id));
+const phaseOf = d => d <= REF.eraAEnd ? "A" : d < REF.currentFrom ? "M" : "C";
+const PHASE_NAME = { A: "Era A (old dumbbell set)", M: "Marathon build", C: "Current (from 22 Jun 2026)" };
+
+function validList(load) { return load === "Single" ? SINGLE_W : PAIR_W; }
+function isValidW(w, load) { if (load === "Free") return true; if (load === "BW") return !isNum(w) || w === 0; return validList(load).includes(w); }
+function nextUp(w, load) { const L = validList(load); return L.find(x => x > w) ?? null; }
+function nextDown(w, load) { const L = validList(load); return [...L].reverse().find(x => x < w) ?? null; }
+function ceilOf(ex) { return ex.ceil ?? (ex.load === "Single" ? SINGLE_CEIL : ex.load === "Pair" ? PAIR_CEIL : null); }
+
+/* ===== Notes: "F5 Ft3 T3-1-1". Never guessed: missing parts stay null. ===== */
+function parseNote(t) {
+  const out = { form: null, fatigue: null, tempo: null, secs: null };
+  if (!t) return out;
+  const s = " " + t + " ";
+  let m = s.match(/(?:^|[\s,;])F\s?([1-5])(?=$|[\s,;])/i); if (m) out.form = +m[1];
+  m = s.match(/(?:^|[\s,;])Ft\s?([1-5])(?=$|[\s,;])/i); if (m) out.fatigue = +m[1];
+  m = s.match(/(?:^|[\s,;])T\s?(\d{1,2}-\d{1,2}-\d{1,2})(?=$|[\s,;])/i); if (m) out.tempo = m[1];
+  return out;
+}
+
+/* ===== CSV ===== */
+function parseCSV(text) {
+  const rows = []; let row = [], f = "", q = false, i = 0;
+  text = text.replace(/^﻿/, "");
+  while (i < text.length) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
+    else f += c;
+    i++;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return { rows: rows.filter(r => r.some(x => x.trim() !== "")), unclosed: q };
+}
+function parseHevyDate(s) {
+  s = (s || "").trim(); let m;
+  const mon = x => MON.findIndex(n => n.toLowerCase() === x.slice(0, 3).toLowerCase()) + 1;
+  if ((m = s.match(/^([A-Za-z]{3,9})\s+(\d{1,2}),\s*(\d{4}),?\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i))) {
+    let h = +m[4] % 12; if (/pm/i.test(m[6])) h += 12; const mo = mon(m[1]); if (!mo) return null;
+    return { d: m[3] + "-" + pad(mo) + "-" + pad(+m[2]), min: h * 60 + +m[5] };
+  }
+  if ((m = s.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4}),?\s+(\d{1,2}):(\d{2})$/))) {
+    const mo = mon(m[2]); if (!mo) return null; return { d: m[3] + "-" + pad(mo) + "-" + pad(+m[1]), min: +m[4] * 60 + +m[5] };
+  }
+  if ((m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/))) return { d: m[1] + "-" + m[2] + "-" + m[3], min: +m[4] * 60 + +m[5] };
+  return null;
+}
+const REQUIRED_COLS = ["title", "start_time", "end_time", "exercise_title", "set_index", "weight_kg", "reps"];
+function importHevyCSV(text, fileName) {
+  if (!text || !text.trim()) return { ok: false, error: "The file is empty." };
+  const { rows, unclosed } = parseCSV(text);
+  if (rows.length < 2) return { ok: false, error: "The file has a header but no rows." };
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  const missing = REQUIRED_COLS.filter(c => !head.includes(c));
+  if (missing.length) return { ok: false, error: "This does not look like a Hevy workout export. Missing columns: " + missing.join(", ") + ". In Hevy: Settings, Export & Import Data, Export Workouts." };
+  const ix = Object.fromEntries(head.map((h, i) => [h, i]));
+  const g = (r, k) => ix[k] == null ? "" : (r[ix[k]] ?? "").trim();
+  const num = v => { if (v === "" || v == null) return null; const x = Number(v); return isFinite(x) ? x : NaN; };
+  const sets = [], skipped = [];
+  for (let n = 1; n < rows.length; n++) {
+    const r = rows[n];
+    if (r.length < head.length - 2) { skipped.push({ line: n + 1, why: "too few columns (" + r.length + ")" }); continue; }
+    const st = parseHevyDate(g(r, "start_time")), et = parseHevyDate(g(r, "end_time"));
+    if (!st) { skipped.push({ line: n + 1, why: "unreadable start_time \"" + g(r, "start_time").slice(0, 30) + "\"" }); continue; }
+    const ex = g(r, "exercise_title"); if (!ex) { skipped.push({ line: n + 1, why: "no exercise_title" }); continue; }
+    const w = num(g(r, "weight_kg")), reps = num(g(r, "reps")), km = num(g(r, "distance_km")), sec = num(g(r, "duration_seconds")), rpe = num(g(r, "rpe")), si = num(g(r, "set_index"));
+    if ([w, reps, km, sec, rpe, si].some(v => Number.isNaN(v))) { skipped.push({ line: n + 1, why: "a number column holds text" }); continue; }
+    const type = (g(r, "set_type") || "normal").toLowerCase();
+    sets.push({ sid: g(r, "start_time"), d: st.d, t0: st.min, d1: et ? et.d : st.d, t1: et ? et.min : null, ti: g(r, "title"), ex, si: si ?? 0, ty: type, w, r: reps, km, sec, rpe, no: g(r, "exercise_notes"), de: g(r, "description") });
+  }
+  if (!sets.length) return { ok: false, error: "No usable rows. " + (skipped[0] ? "First problem: line " + skipped[0].line + ", " + skipped[0].why + "." : "") };
+  return { ok: true, sets, skipped, unclosed, fileName: fileName || "workouts.csv" };
+}
+
+/* ===== State ===== */
+const KEY = "kris-recomp-board-v1";
+function freshState() {
+  return { v: 1, hevy: { sets: [], file: null, importedAt: null, skipped: 0 }, entries: {}, done: {}, eaten: {},
+    body: { daily: [], weekly: [] }, goals: clone(GOAL_EMPTY), foods: clone(FOODS_SEED), meals: clone(MEALS_SEED),
+    stock: clone(STOCK_SEED), checks: clone(CHECKS_SEED), loadOverride: {}, settings: { muscleView: "direct", progPhase: "C" } };
+}
+let S = freshState(), storageOK = true, storageMsg = "";
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); storageOK = true; storageMsg = ""; }
+  catch (e) { storageOK = false; storageMsg = "Browser storage is not available here, so changes last only until you close this page. Use Export to keep them."; }
+}
+function load() {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) { storageOK = false; storageMsg = "Browser storage is blocked in this window. Edits will not be kept; use Export."; }
+  if (raw) { try { const o = JSON.parse(raw); S = Object.assign(freshState(), o); return "storage"; } catch (e) { storageMsg = "Saved data could not be read and was ignored."; } }
+  if (window.EMBED) { applyEmbed(); return "embed"; }
+  return "empty";
+}
+function applyEmbed() {
+  S = freshState();
+  const E = window.EMBED;
+  if (E.csv) { const r = importHevyCSV(E.csv, E.csvName); if (r.ok) { S.hevy = { sets: r.sets, file: r.fileName, importedAt: E.builtAt || null, skipped: r.skipped.length }; } }
+  if (E.goals) S.goals = Object.assign(clone(GOAL_EMPTY), E.goals);
+  if (E.body) S.body = clone(E.body);
+  save();
+}
+
+/* ===== Model built from state ===== */
+let M = null;
+function entryFor(d, exId) { return S.entries[d + "|" + exId] || null; }
+function exDef(id) {
+  if (EX[id]) { const o = S.loadOverride[id]; return o ? Object.assign({}, EX[id], { load: o }) : EX[id]; }
+  return { id, name: id.slice(2), hevy: [id.slice(2)], type: "Compound", load: S.loadOverride[id] || "Pair", ceil: null, d: [], i: [], status: "Unmapped" };
+}
+function planItemFor(d, exId) {
+  const day = PLAN[dow(d)]; if (!day) return null;
+  return day.items.find(it => it.ex === exId) || null;
+}
+function anyPlanItem(exId) { for (const k of [1, 2, 4, 5]) { const it = PLAN[k].items.find(x => x.ex === exId); if (it) return it; } return null; }
+function buildModel() {
+  const sessions = new Map();
+  for (const r of S.hevy.sets) {
+    let s = sessions.get(r.sid);
+    if (!s) { s = { sid: r.sid, d: r.d, t0: r.t0, t1: r.t1, d1: r.d1, title: r.ti, blocks: [] }; sessions.set(r.sid, s); }
+    let b = s.blocks[s.blocks.length - 1];
+    if (!b || b.title !== r.ex || (r.si <= b.lastSi && b.sets.length)) { b = { title: r.ex, sets: [], note: r.no, lastSi: -1 }; s.blocks.push(b); }
+    b.lastSi = r.si;
+    if (r.ty === "warmup") continue;
+    b.sets.push({ w: r.w, r: r.r, rpe: r.rpe, km: r.km, sec: r.sec });
+  }
+  const list = [...sessions.values()].sort((a, b) => (a.d + pad(a.t0)).localeCompare(b.d + pad(b.t0)));
+  const series = {}, unknownTitles = new Set();
+  for (const s of list) {
+    s.phase = phaseOf(s.d);
+    s.dur = s.t1 != null ? (daysBetween(s.d, s.d1) * 1440 + s.t1 - s.t0) : null;
+    const seen = {};
+    for (const b of s.blocks) {
+      let base = TITLE2EX[b.title.toLowerCase()];
+      if (!base) { base = "x:" + b.title; unknownTitles.add(b.title); }
+      seen[base] = (seen[base] || 0) + 1;
+      let id = base;
+      if (base === "row" && seen[base] >= 2) id = "row_bo";
+      if (base === "fly" && dow(s.d) === 5 && s.d >= REF.friFlyFrom) id = "fly_fri";
+      b.ex = id;
+      const def = exDef(id);
+      const ws = b.sets.map(x => x.w).filter(isNum);
+      const valid = s.phase === "A" ? ws : ws.filter(w => isValidW(w, def.load));
+      b.invalid = s.phase === "A" ? [] : [...new Set(ws.filter(w => !isValidW(w, def.load)))];
+      b.workW = def.load === "BW" ? 0 : valid.length ? Math.max(...valid) : null;
+      b.nSets = b.sets.length;
+      b.reps = b.sets.map(x => x.r);
+      b.secs = b.sets.map(x => x.sec).filter(v => isNum(v) && v > 0);
+      b.km = b.sets.map(x => x.km).filter(isNum);
+      const rp = b.sets.map(x => x.rpe).filter(isNum); b.rpe = rp.length ? rp.reduce((a, c) => a + c, 0) / rp.length : null;
+      b.ton = b.sets.reduce((a, x) => a + (isNum(x.w) && isNum(x.r) ? x.w * x.r : 0), 0);
+      const note = parseNote(b.note), en = entryFor(s.d, id) || {};
+      b.form = en.form ?? note.form; b.fatigue = en.fatigue ?? note.fatigue; b.tempo = en.tempo || note.tempo;
+      b.repsDone = en.repsDone ?? null; b.entrySecs = en.secs ?? null;
+      b.noteParsed = note.form != null || note.fatigue != null || note.tempo != null;
+      b.d = s.d; b.sid = s.sid; b.phase = s.phase;
+      (series[id] = series[id] || []).push(b);
+    }
+  }
+  M = { sessions: list, series, unknownTitles: [...unknownTitles] };
+  M.audit = buildAudit();
+  return M;
+}
+
+/* reps check against the plan, only for Block 2 dates where the plan applies */
+function repsOK(b) {
+  if (b.repsDone === "yes") return true; if (b.repsDone === "no") return false;
+  if (b.d < REF.currentFrom) return null;
+  // Block 2 days use that day's prescription; earlier current-phase sessions use the same lift's Block 2 prescription
+  const it = planItemFor(b.d, b.ex) || anyPlanItem(b.ex); if (!it) return null;
+  if (it.secs) { const s = b.entrySecs ?? (b.secs.length ? Math.min(...b.secs) : null); return s == null ? null : b.nSets >= it.sets && s >= it.secs; }
+  return b.nSets >= it.sets && b.reps.every(r => isNum(r) && r >= it.reps);
+}
+function passes(b) { if (b.form == null || b.fatigue == null) return null; const r = repsOK(b); return b.form === 5 && b.fatigue >= 3 && r === true; }
+
+/* The gate, exactly as Progression Rules A28:C45 */
+function gateLabel(def, cur, prev, date) {
+  // cur: {w, form, fatigue, repsOK, tempo}; prev: previous block of the same exercise (or null)
+  if (cur.form == null || cur.fatigue == null) return { k: "neutral", t: "Not logged", why: "Form and Fatigue are needed for the gate." };
+  if (def.tech && date <= def.tech) return { k: "info", t: "Technique week", why: "New lift until " + dmd(def.tech) + ". Aim for Form 4 minimum." };
+  const fails = [];
+  if (cur.form !== 5) fails.push("Form " + cur.form + "/5");
+  if (cur.fatigue < 3) fails.push("Fatigue " + cur.fatigue + " (gate closed)");
+  if (cur.repsOK === false) fails.push("reps incomplete");
+  if (fails.length) return { k: "bad", t: "Not yet: " + fails[0], why: "Hold the weight. Fix that one cue." + (fails.length > 1 ? " Also: " + fails.slice(1).join(", ") + "." : "") };
+  if (cur.repsOK == null) return { k: "warn", t: "Confirm reps", why: "Tick whether every prescribed rep was done." };
+  const ceil = ceilOf(def);
+  if (ceil != null && isNum(cur.w) && cur.w >= ceil) {
+    if (def.timed) return { k: "ok", t: "Ceiling: time up", why: "Fatigue 3+ at 90s opens 105s." };
+    const prevPass = prev && passes(prev) && prev.workW === cur.w && (!cur.tempo || !prev.tempo || prev.tempo === cur.tempo);
+    return prevPass ? { k: "ok", t: "Ceiling: tempo up", why: "Two passing sessions. Advance the tempo step." } : { k: "warn", t: "Ceiling: 1 of 2", why: "Repeat this tempo and pass again." };
+  }
+  if (def.type === "BW") return { k: "ok", t: "Yes: progress tempo or reps", why: "" };
+  const nu = isNum(cur.w) ? nextUp(cur.w, def.load) : null;
+  if (def.type === "Isolation") return { k: "ok", t: "Yes: add weight" + (nu ? " to " + nu : ""), why: "Isolation lift: one passing session is enough." };
+  const prevPass = prev && passes(prev) && prev.workW === cur.w;
+  return prevPass ? { k: "ok", t: "Yes: add weight" + (nu ? " to " + nu : ""), why: "Second consecutive passing session at " + cur.w + " kg." } : { k: "warn", t: "1 of 2: repeat", why: "Compound lift: pass again at the same weight next session." };
+}
+
+/* ===== Audit: every weight increase, impossible weights ===== */
+function buildAudit() {
+  const inc = [], impossible = [];
+  for (const [id, ser] of Object.entries(M.series)) {
+    const def = exDef(id);
+    let prevW = null, run = 0, prevB = null;
+    for (const b of ser) {
+      if (b.phase !== "A" && b.invalid.length) impossible.push({ d: b.d, ex: id, w: b.invalid, phase: b.phase, sets: b.sets.filter(x => b.invalid.includes(x.w)).length });
+      if (b.phase === "A" || def.load === "BW") { prevW = null; run = 0; prevB = null; continue; }
+      const w = b.workW;
+      if (w == null) { prevW = null; run = 0; prevB = null; continue; }
+      if (prevW != null && w > prevW && phaseOf(prevB.d) === b.phase) {
+        const steps = validList(def.load).filter(v => v > prevW && v <= w).length;
+        const missing = [], proven = [];
+        const compound = def.type !== "Isolation";
+        if (compound && run < 2) proven.push("only " + run + " session at " + prevW + " kg (compound needs 2)");
+        if (prevB.form == null || prevB.fatigue == null) missing.push("Form/Fatigue not logged");
+        else { if (prevB.form !== 5) proven.push("Form " + prevB.form + "/5"); if (prevB.fatigue < 3) proven.push("Fatigue " + prevB.fatigue); }
+        const r = repsOK(prevB); if (r === false) proven.push("reps incomplete");
+        if (steps > 1) missing.push("jumped " + steps + " valid steps");
+        const cls = proven.length ? "proven" : steps > 1 ? "jump" : "unverified";
+        inc.push({ d: b.d, ex: id, from: prevW, to: w, run, steps, phase: b.phase, cls, proven, missing, compound });
+      }
+      run = (w === prevW) ? run + 1 : 1; prevW = w; prevB = b;
+    }
+  }
+  inc.sort((a, b) => b.d.localeCompare(a.d)); impossible.sort((a, b) => b.d.localeCompare(a.d));
+  return { inc, impossible };
+}
+
+/* ===== Per-exercise progression summary ===== */
+function e1rm(w, r) { return isNum(w) && isNum(r) && r > 0 && r <= 12 ? w * (1 + r / 30) : null; }
+function progressionFor(id, phases) {
+  const def = exDef(id);
+  const ser = (M.series[id] || []).filter(b => phases.includes(b.phase));
+  if (!ser.length) return null;
+  const valid = b => b.workW != null;
+  const first = ser.find(valid) || ser[0], cur = [...ser].reverse().find(valid) || ser[ser.length - 1];
+  let best = null, bestE = null;
+  for (const b of ser) for (const x of b.sets) {
+    if (b.phase !== "A" && isNum(x.w) && !isValidW(x.w, def.load)) continue;
+    const e = e1rm(x.w, x.r);
+    if (e != null && (bestE == null || e > bestE.e)) bestE = { e, w: x.w, r: x.r, d: b.d };
+    if (isNum(x.w) && (best == null || x.w > best.w || (x.w === best.w && (x.r || 0) > (best.r || 0)))) best = { w: x.w, r: x.r, d: b.d };
+  }
+  // plateau: weight, reps and sets unchanged for the trailing sessions
+  const sig = b => [b.workW, b.nSets, b.reps.join("/"), b.km.join("/"), b.secs.join("/")].join("|");
+  let streak = 1; const last = ser[ser.length - 1];
+  for (let k = ser.length - 2; k >= 0; k--) { if (sig(ser[k]) === sig(last)) streak++; else break; }
+  const plateau = streak >= 3;
+  let cause = null;
+  if (plateau) {
+    const ceil = ceilOf(def), it = planItemFor(last.d, id);
+    if (def.timed && last.km.length && !last.secs.length) cause = "Logged as distance (10 m steps), which cannot show time progress";
+    else if (ceil != null && isNum(last.workW) && last.workW >= ceil) cause = "Equipment ceiling";
+    else if (last.fatigue != null && last.fatigue < 3) cause = "Fatigue gate";
+    else if (last.form != null && last.form < 5) cause = "Form gate";
+    else if (it && it.reps && (last.nSets < it.sets || last.reps.some(r => r < it.reps))) cause = "Compliance (below prescribed sets or reps)";
+    else if (last.form == null) cause = "Unknown: Form and Fatigue not logged";
+    else cause = "Unknown";
+  }
+  const lastRPE = ser.slice(-12).map(b => b.rpe);
+  return { id, def, n: ser.length, first, cur, best, bestE, change: isNum(cur.workW) && isNum(first.workW) ? cur.workW - first.workW : null, streak, plateau, cause, last, lastRPE, ser };
+}
+
+/* ===== Body map: front and back figures, muscles shaded by hard sets ===== */
+const BM_BASE = `
+  <circle cx="100" cy="34" r="19"/><rect x="92" y="50" width="16" height="14" rx="4"/>
+  <path d="M62 66 Q100 57 138 66 L148 82 L133 192 L67 192 L52 82 Z"/>
+  <path d="M67 188 L133 188 L139 224 L61 224 Z"/>
+  <rect x="34" y="72" width="21" height="74" rx="10" transform="rotate(8 44 72)"/><rect x="145" y="72" width="21" height="74" rx="10" transform="rotate(-8 156 72)"/>
+  <rect x="25" y="146" width="18" height="70" rx="9" transform="rotate(6 34 146)"/><rect x="157" y="146" width="18" height="70" rx="9" transform="rotate(-6 166 146)"/>
+  <circle cx="30" cy="224" r="8"/><circle cx="170" cy="224" r="8"/>
+  <rect x="64" y="218" width="33" height="102" rx="15"/><rect x="103" y="218" width="33" height="102" rx="15"/>
+  <rect x="68" y="318" width="26" height="82" rx="12"/><rect x="106" y="318" width="26" height="82" rx="12"/>
+  <ellipse cx="80" cy="406" rx="14" ry="6"/><ellipse cx="120" cy="406" rx="14" ry="6"/>`;
+const BM_FRONT = {
+  delts: [`<ellipse cx="54" cy="82" rx="13" ry="12"/>`, `<ellipse cx="146" cy="82" rx="13" ry="12"/>`],
+  chest: [`<path d="M64 86 Q82 76 98 83 L98 115 Q80 123 64 111 Z"/>`, `<path d="M136 86 Q118 76 102 83 L102 115 Q120 123 136 111 Z"/>`],
+  biceps: [`<ellipse cx="45" cy="113" rx="8.5" ry="25" transform="rotate(8 45 113)"/>`, `<ellipse cx="155" cy="113" rx="8.5" ry="25" transform="rotate(-8 155 113)"/>`],
+  forearms: [`<ellipse cx="33" cy="180" rx="8" ry="27" transform="rotate(6 33 180)"/>`, `<ellipse cx="167" cy="180" rx="8" ry="27" transform="rotate(-6 167 180)"/>`],
+  core: [`<rect x="83" y="121" width="34" height="64" rx="8"/>`],
+  quads: [`<ellipse cx="81" cy="264" rx="13" ry="42"/>`, `<ellipse cx="119" cy="264" rx="13" ry="42"/>`]
+};
+const BM_BACK = {
+  delts: [`<ellipse cx="54" cy="82" rx="13" ry="12"/>`, `<ellipse cx="146" cy="82" rx="13" ry="12"/>`],
+  back: [`<path d="M70 76 Q100 68 130 76 L136 110 L121 162 L79 162 L64 110 Z"/>`],
+  triceps: [`<ellipse cx="45" cy="111" rx="8.5" ry="25" transform="rotate(8 45 111)"/>`, `<ellipse cx="155" cy="111" rx="8.5" ry="25" transform="rotate(-8 155 111)"/>`],
+  forearms: [`<ellipse cx="33" cy="180" rx="8" ry="27" transform="rotate(6 33 180)"/>`, `<ellipse cx="167" cy="180" rx="8" ry="27" transform="rotate(-6 167 180)"/>`],
+  glutes: [`<ellipse cx="85" cy="205" rx="16" ry="16"/>`, `<ellipse cx="115" cy="205" rx="16" ry="16"/>`, `<ellipse cx="81" cy="268" rx="12" ry="36"/>`, `<ellipse cx="119" cy="268" rx="12" ry="36"/>`],
+  calves: [`<ellipse cx="81" cy="348" rx="11" ry="27"/>`, `<ellipse cx="119" cy="348" rx="11" ry="27"/>`]
+};
+// load: { muscleId: { d: direct sets, i: indirect sets } }
+function bodyMap(load, caption) {
+  const val = m => load[m] ? load[m].d + 0.5 * load[m].i : 0;
+  const max = Math.max(1, ...MUSCLES.map(m => val(m.id)));
+  const name = id => (MUSCLES.find(m => m.id === id) || { name: id }).name;
+  const shapes = (map, ox) => Object.entries(map).map(([id, list]) => {
+    const v = val(id), x = load[id];
+    const tip = `${name(id)}: ${x ? (x.d ? fmtSets(x.d) + " direct" : "") + (x.d && x.i ? ", " : "") + (x.i ? fmtSets(x.i) + " indirect" : "") : "not trained"}`;
+    const op = v ? (0.3 + 0.7 * v / max).toFixed(2) : 1;
+    const fill = v ? (x.d ? "var(--accent)" : "var(--chart-b)") : "var(--bm-off)";
+    return `<g transform="translate(${ox} 0)" fill="${fill}" fill-opacity="${op}" stroke="var(--surface)" stroke-width="1.2"><title>${esc(tip)}</title>${list.join("")}</g>`;
+  }).join("");
+  const rows = MUSCLES.filter(m => load[m.id] && (load[m.id].d || load[m.id].i)).sort((a, b) => val(b.id) - val(a.id));
+  return `<div class="bmap">
+    <svg class="chart bm-svg" viewBox="0 0 420 430" role="img" aria-label="${esc(caption)}: ${esc(rows.map(m => m.name + " " + fmtSets(val(m.id)) + " sets").join(", ") || "no muscles")}">
+      <g fill="var(--tint)" stroke="var(--line)" stroke-width="1.2">${BM_BASE}</g>
+      <g transform="translate(220 0)" fill="var(--tint)" stroke="var(--line)" stroke-width="1.2">${BM_BASE}</g>
+      ${shapes(BM_FRONT, 0)}${shapes(BM_BACK, 220)}
+      <text x="100" y="426" text-anchor="middle">front</text><text x="320" y="426" text-anchor="middle">back</text>
+    </svg>
+    <div class="stack" style="gap:8px;min-width:0">
+      <div class="lab">${esc(caption)}</div>
+      ${rows.length ? `<div class="bm-list">${rows.map(m => { const x = load[m.id]; return `<div class="bm-row"><span class="bm-sw" style="background:${x.d ? "var(--accent)" : "var(--chart-b)"};opacity:${(0.3 + 0.7 * val(m.id) / max).toFixed(2)}"></span><span class="${m.pri ? "prilabel" : ""}">${esc(m.name)}</span><span class="num">${x.d ? fmtSets(x.d) : ""}${x.d && x.i ? " + " : ""}${x.i ? `<span class="mute">${fmtSets(x.i)} ind.</span>` : ""}</span></div>`; }).join("")}</div>` : `<p class="mute small">No lifting muscles on this day.</p>`}
+      <div class="legend"><span><i style="background:var(--accent);height:10px"></i>direct sets</span><span><i style="background:var(--chart-b);height:10px"></i>indirect only</span><span>Stronger color = more sets</span></div>
+    </div></div>`;
+}
+const fmtSets = v => (v % 1 ? v.toFixed(1) : String(v));
+function loadFromItems(items) {
+  const L = {};
+  items.forEach(({ ex, sets }) => { const def = exDef(ex); def.d.forEach(m => { (L[m] = L[m] || { d: 0, i: 0 }).d += sets; }); def.i.forEach(m => { (L[m] = L[m] || { d: 0, i: 0 }).i += sets; }); });
+  return L;
+}
+function planLoad(days) { return loadFromItems(days.flatMap(k => PLAN[k].items.filter(it => it.ex))); }
+
+/* ===== Shared view helpers ===== */
+let TAB = "today", TODAY = ymdLocal(), VIEW_DATE = TODAY, FLASH = null, BM_FOCUS = "", BM_DAY = "week";
+const chip = (k, t, title) => `<span class="chip ${k}"${title ? ` title="${esc(title)}"` : ""}>${esc(t)}</span>`;
+const blockWeek = d => Math.floor(daysBetween(REF.blockStart, d) / 7) + 1;
+const weekNo = d => REF.weekNumberAtBlockStart + Math.floor(daysBetween(REF.blockStart, weekStart(d)) / 7);
+function hasData() { return S.hevy.sets.length > 0; }
+
+function historyFor(id) {
+  // Hevy blocks plus dashboard-only entries (a day logged here before the next Hevy import)
+  const ser = (M.series[id] || []).slice();
+  const days = new Set(ser.map(b => b.d));
+  for (const [k, en] of Object.entries(S.entries)) {
+    const [d, ex] = k.split("|"); if (ex !== id || days.has(d)) continue;
+    if (en.form == null && en.fatigue == null && en.w == null) continue;
+    ser.push({ d, ex: id, workW: en.w ?? null, form: en.form ?? null, fatigue: en.fatigue ?? null, tempo: en.tempo || null, repsDone: en.repsDone ?? null, entrySecs: en.secs ?? null, nSets: 0, reps: [], secs: [], km: [], sets: [], rpe: en.rpe ?? null, phase: phaseOf(d), pseudo: true });
+  }
+  return ser.sort((a, b) => a.d.localeCompare(b.d));
+}
+function latestValidW(id) { const ser = M.series[id] || []; for (let k = ser.length - 1; k >= 0; k--) if (ser[k].workW != null && ser[k].phase !== "A") return { w: ser[k].workW, d: ser[k].d }; return null; }
+function scheduledTempo(t, d) { const wk = blockWeek(d); if (wk < 1) return { idx: -1, step: null }; if (wk > REF.blockWeeks) return { idx: REF.blockWeeks - 1, step: t.steps[REF.blockWeeks - 1], ended: true }; return { idx: wk - 1, step: t.steps[wk - 1] }; }
+
+function sparkline(vals, w = 120, h = 30, lo = 6, hi = 9) {
+  const pts = vals.map((v, i) => [i, v]).filter(p => isNum(p[1]));
+  if (pts.length < 2) return `<span class="mute small">not enough RPE</span>`;
+  const x = i => 4 + i * (w - 8) / Math.max(1, vals.length - 1), y = v => h - 4 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo) * (h - 8);
+  const d = pts.map((p, k) => (k ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
+  const L = pts[pts.length - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" style="width:${w}px" role="img" aria-label="RPE trend, last value ${L[1].toFixed(1)}">
+    <line class="grid" x1="0" x2="${w}" y1="${y(7)}" y2="${y(7)}"/><line class="grid" x1="0" x2="${w}" y1="${y(8)}" y2="${y(8)}"/>
+    <path d="${d}" fill="none" stroke="var(--chart-a)" stroke-width="1.8"/>
+    <circle cx="${x(L[0])}" cy="${y(L[1])}" r="3" fill="var(--chart-a)"/></svg>`;
+}
+
+/* ===== TODAY ===== */
+function viewToday() {
+  const d = VIEW_DATE, day = PLAN[dow(d)];
+  const wk = weekNo(d), bw = blockWeek(d);
+  const sess = M.sessions.filter(s => s.d === d);
+  let ready = 0, logged = 0, lifts = 0;
+  const cards = day.items.map(it => {
+    if (it.act) {
+      const k = d + "|" + it.act, on = !!S.done[k];
+      return `<div class="ex"><div class="ex-h"><div><div class="ex-name">${esc(it.act)}</div><div class="presc">${esc(it.dose)}</div></div>
+        <label class="row small"><input type="checkbox" data-ch="done" data-k="${esc(k)}" ${on ? "checked" : ""} id="done-${esc(k)}"> Done</label></div><div class="cue">${esc(it.cue)}</div></div>`;
+    }
+    lifts++;
+    const def = exDef(it.ex), en = entryFor(d, it.ex) || {};
+    const hist = historyFor(it.ex), hb = hist.filter(b => b.d === d && !b.pseudo).pop();
+    const prev = [...hist].reverse().find(b => b.d < d) || null;
+    const t = TEMPO.find(x => x.ex === it.ex), st = t ? scheduledTempo(t, d) : null;
+    const w = en.w ?? (hb ? hb.workW : null) ?? it.w;
+    const wOK = isValidW(w, def.load);
+    const form = en.form ?? (hb ? hb.form : null), fat = en.fatigue ?? (hb ? hb.fatigue : null);
+    const tempo = en.tempo || (hb ? hb.tempo : null);
+    const pseudoCur = Object.assign({ d, ex: it.ex, workW: w, nSets: hb ? hb.nSets : 0, reps: hb ? hb.reps : [], secs: hb ? hb.secs : [], km: hb ? hb.km : [], form, fatigue: fat, tempo, repsDone: en.repsDone ?? null, entrySecs: en.secs ?? null });
+    const g = gateLabel(def, { w, form, fatigue: fat, repsOK: repsOK(pseudoCur), tempo }, prev, d);
+    if (form != null && fat != null) logged++;
+    if (/^(Yes|Ceiling: tempo up|Ceiling: time up)/.test(g.t)) ready++;
+    const pri = def.d.some(m => ["chest", "biceps", "triceps"].includes(m));
+    const seg = (field, cls) => `<div class="seg ${cls}" role="group" aria-label="${field === "form" ? "Form" : "Fatigue"} 1 to 5">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-act="seg" data-k="${d}|${it.ex}" data-f="${field}" data-v="${v}" aria-pressed="${(field === "form" ? form : fat) === v}">${v}</button>`).join("")}</div>`;
+    const id = it.ex + "-" + d;
+    const hevyLine = hb ? `<div class="note">Hevy ${esc(dmd(d))}: ${hb.sets.map(x => (isNum(x.w) ? x.w : "BW") + (isNum(x.r) && x.r ? "x" + x.r : "") + (isNum(x.km) ? " " + Math.round(x.km * 1000) + "m" : "") + (isNum(x.sec) && x.sec ? " " + x.sec + "s" : "")).join(", ")}${hb.noteParsed ? "" : ". No F/Ft/T note."}</div>` : "";
+    return `<div class="ex${pri ? " priority" : ""}">
+      <div class="ex-h"><div><div class="ex-name">${esc(def.name)}${pri ? ` <span class="chip pri">priority</span>` : ""}</div>
+        <div class="presc"><b>${it.sets} x ${it.secs ? it.secs + "s" : it.reps}</b> at <b>${it.w}</b> kg ${def.load === "Single" ? "single" : "combined"}${st && st.step ? ` · tempo <b>${esc(st.step)}</b> (wk ${st.idx + 1})` : ""}</div></div>
+        ${chip(g.k, g.t, g.why)}</div>
+      <div class="cue">${esc(it.cue)}</div>${hevyLine}
+      <div><button type="button" class="btn small" data-act="bmfocus" data-k="${it.ex}" aria-pressed="${BM_FOCUS === it.ex}">Show muscles on body</button></div>
+      <div class="ex-grid">
+        <div class="field"><label for="w-${id}">Logged weight (kg)</label><input class="inp${wOK ? "" : " bad-in"}" id="w-${id}" type="number" step="0.5" inputmode="decimal" value="${isNum(w) ? w : ""}" data-ch="entry" data-k="${d}|${it.ex}" data-f="w"></div>
+        <div class="field"><span class="lab">Form</span>${seg("form", "")}</div>
+        <div class="field"><span class="lab">Fatigue (5 = easy)</span>${seg("fatigue", "fat")}</div>
+        <div class="field"><label for="rpe-${id}">RPE</label><input class="inp" id="rpe-${id}" type="number" min="6" max="10" step="0.5" inputmode="decimal" value="${en.rpe ?? ""}" data-ch="entry" data-k="${d}|${it.ex}" data-f="rpe"></div>
+        <div class="field"><label for="rd-${id}">All reps done?</label><select class="inp" id="rd-${id}" data-ch="entry" data-k="${d}|${it.ex}" data-f="repsDone"><option value="">${hb && repsOK(Object.assign({}, hb, { repsDone: null })) != null ? "From Hevy" : "Not set"}</option><option value="yes" ${en.repsDone === "yes" ? "selected" : ""}>Yes</option><option value="no" ${en.repsDone === "no" ? "selected" : ""}>No</option></select></div>
+        ${it.secs ? `<div class="field"><label for="sec-${id}">Duration (s)</label><input class="inp" id="sec-${id}" type="number" step="5" inputmode="numeric" value="${en.secs ?? ""}" data-ch="entry" data-k="${d}|${it.ex}" data-f="secs"></div>`
+        : `<div class="field"><label for="tp-${id}">Tempo done</label><input class="inp" id="tp-${id}" type="text" placeholder="${esc(st && st.step && !t.free ? st.step : "e.g. 3-1-1")}" value="${esc(en.tempo || "")}" data-ch="entry" data-k="${d}|${it.ex}" data-f="tempo"></div>`}
+      </div>
+      ${wOK ? "" : `<div class="msg bad">${esc(w)} kg does not exist as a ${def.load === "Single" ? "single dumbbell" : "combined pair"}. Nearest valid: ${nextDown(w, def.load) ?? "-"} or ${nextUp(w, def.load) ?? "-"}.</div>`}
+      <div class="note">${esc(g.why)}${prev ? ` Previous: ${dmd(prev.d)} at ${prev.workW ?? "-"} kg, Form ${prev.form ?? "not logged"}, Fatigue ${prev.fatigue ?? "not logged"}.` : ""}</div>
+    </div>`;
+  }).join("");
+
+  // meals today
+  const eaten = S.eaten[d] || {};
+  const mm = S.meals.map(m => ({ m, mac: mealMacros(m) }));
+  const sum = (arr, k) => arr.reduce((a, x) => a + (x.mac.v ? x.mac.v[k] : 0), 0);
+  const tot = ["kcal", "p", "c", "f", "fiber"].reduce((o, k) => (o[k] = sum(mm, k), o), {});
+  const ate = ["kcal", "p", "c", "f", "fiber"].reduce((o, k) => (o[k] = sum(mm.filter(x => eaten[x.m.id]), k), o), {});
+  const unknown = mm.filter(x => !x.mac.v && x.m.items.length).length;
+  const mealRows = mm.map(({ m, mac }) => `<tr><td><input type="checkbox" id="eat-${m.id}" aria-label="Ate ${esc(m.name)}" data-ch="eat" data-k="${m.id}" ${eaten[m.id] ? "checked" : ""}></td>
+    <td class="num small">${esc(m.time)}</td><td><b>${esc(m.name)}</b><div class="note">${esc(m.text || m.items.map(([f, a]) => foodName(f) + " " + a + foodUnit(f)).join(", "))}</div></td>
+    <td class="n">${mac.v ? fmt(mac.v.kcal) : "-"}</td><td class="n">${mac.v ? fmt(mac.v.p) : "-"}</td></tr>`).join("");
+  const left = k => tot[k] - ate[k];
+
+  return `
+  <section class="blk">
+    <div class="hd"><div><div class="eyebrow">Week ${wk}${bw >= 1 && bw <= REF.blockWeeks ? " · Block 2, week " + bw + " of 4" : ""}</div><h1>${esc(dshort(d))}: ${esc(day.name)}</h1><p class="lede">${esc(day.focus)}.${lifts0(day) ? " Session at 10:15 AM, shift at 1:00 PM." : ""}</p></div>
+      <div class="field"><label for="viewdate">Day</label><input class="inp" type="date" id="viewdate" value="${d}" data-ch="viewdate"></div></div>
+    ${!hasData() ? emptyNote() : ""}
+    ${lifts ? `<div class="strip"><span class="stat">Ready to progress <b>${ready}/${lifts}</b></span><span class="stat">Form + Fatigue logged <b>${logged}/${lifts}</b></span><span class="stat">Hevy session ${sess.length ? `<b>${hm(sess[0].t0)} to ${hm(sess[0].t1)}</b>` : "<b>not imported yet</b>"}</span></div>` : ""}
+    <div class="exlist">${cards}</div>
+    ${lifts ? todayBodyMap(day) : ""}
+    <p class="note">Weights are combined totals of both dumbbells (single dumbbell for Plank Pull-Through). Gate: Form 5, Fatigue 3+, all reps; two sessions for compounds, one for isolations. Hevy notes in the form F5 Ft3 T3-1-1 fill Form, Fatigue and tempo automatically; entries here override them.</p>
+  </section>
+  <section class="blk">
+    <div class="hd"><h2>Food today</h2><span class="mute">Tick what you have eaten</span></div>
+    <div class="panel stack">
+      <div class="strip">${[["kcal", "kcal", TARGETS.kcal], ["p", "protein g", TARGETS.p], ["c", "carbs g", TARGETS.c], ["f", "fat g", TARGETS.f], ["fiber", "fiber g", TARGETS.fiber]].map(([k, l, t]) => `<span class="stat">${l} left <b>${fmt(left(k))}</b> <span class="mute small">of ${fmt(tot[k])} · target ${t[0]}-${t[1]}</span></span>`).join("")}</div>
+      ${unknown ? `<p class="note">${unknown} meal(s) have changed amounts and no per-100 g macros, so they are left out of the totals.</p>` : ""}
+      <div class="scroll"><table><thead><tr><th></th><th>Time</th><th>Meal</th><th class="n">kcal</th><th class="n">P</th></tr></thead><tbody>${mealRows}</tbody></table></div>
+      <p class="note">Macros are the meal_prep.html estimates (about 10% either way) unless every food in a meal has per-100 g values in the food database. Water target ${TARGETS.waterL[0]}-${TARGETS.waterL[1]} L.</p>
+    </div>
+  </section>`;
+}
+function todayBodyMap(day) {
+  const items = day.items.filter(it => it.ex);
+  const focus = items.find(it => it.ex === BM_FOCUS);
+  const pick = focus ? [focus] : items;
+  const cap = focus ? exDef(focus.ex).name + ", " + focus.sets + " sets" : day.name + ", whole workout";
+  return `<div class="panel stack" id="bodymap"><div class="hd"><h3>Muscles in this workout</h3>
+    <div class="field"><label for="bmfocus">Show</label><select class="inp" id="bmfocus" data-ch="bmfocus"><option value="">Whole workout</option>${items.map(it => `<option value="${it.ex}" ${it.ex === BM_FOCUS ? "selected" : ""}>${esc(exDef(it.ex).name)}</option>`).join("")}</select></div></div>
+    ${bodyMap(loadFromItems(pick), cap)}
+    <p class="note">Planned sets from this day's plan. Indirect sets count half when shading. The mapping is the same one the Training tab uses to count weekly sets.</p></div>`;
+}
+function trainingBodyMap() {
+  const liftDays = [1, 2, 3, 4, 5, 6, 0].filter(k => lifts0(PLAN[k]));
+  const days = BM_DAY === "week" ? liftDays : [+BM_DAY];
+  const cap = BM_DAY === "week" ? "Planned week, Block 2" : ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][+BM_DAY] + ", " + PLAN[+BM_DAY].name;
+  return `<div class="panel stack"><div class="hd"><h3>Body map of the plan</h3>
+    <div class="field"><label for="bmday">Day</label><select class="inp" id="bmday" data-ch="bmday"><option value="week">Whole week</option>${liftDays.map(k => `<option value="${k}" ${String(k) === BM_DAY ? "selected" : ""}>${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][k]}, ${esc(PLAN[k].name)}</option>`).join("")}</select></div></div>
+    ${bodyMap(planLoad(days), cap)}
+    <p class="note">${BM_DAY === "week" ? "Direct sets here match the Plan column in the table above." : "Planned sets for this day. Pick Whole week to compare with the Plan column."}</p></div>`;
+}
+function lifts0(day) { return day.items.some(it => it.ex); }
+function emptyNote() {
+  return `<div class="empty"><h3>No Hevy data loaded</h3><p class="mute">Import your Hevy workout export (CSV) to fill history, progression and the audit. The plan, rules, equipment and meal plan already work without it.</p><button class="btn primary" data-act="open-data">Import Hevy CSV</button></div>`;
+}
+
+/* ===== TRAINING ===== */
+function muscleWeeks(nWeeks) {
+  const endW = weekStart(TODAY), weeks = [];
+  for (let k = nWeeks - 1; k >= 0; k--) weeks.push(addDays(endW, -7 * k));
+  const idx = Object.fromEntries(weeks.map((w, i) => [w, i]));
+  const direct = {}, weighted = {}, ton = weeks.map(() => 0);
+  MUSCLES.forEach(m => { direct[m.id] = weeks.map(() => 0); weighted[m.id] = weeks.map(() => 0); });
+  for (const s of M.sessions) {
+    const i = idx[weekStart(s.d)]; if (i == null) continue;
+    for (const b of s.blocks) {
+      const def = exDef(b.ex), n = b.nSets;
+      def.d.forEach(m => { if (direct[m]) { direct[m][i] += n; weighted[m][i] += n; } });
+      def.i.forEach(m => { if (weighted[m]) weighted[m][i] += 0.5 * n; });
+      if (def.d.some(m => ["biceps", "triceps", "forearms"].includes(m))) ton[i] += b.sets.reduce((a, x) => a + (isNum(x.w) && isNum(x.r) && (s.phase === "A" || isValidW(x.w, def.load)) ? x.w * x.r : 0), 0);
+    }
+  }
+  return { weeks, direct, weighted, ton };
+}
+function viewTraining() {
+  if (!hasData()) return `<section class="blk"><h1>Training</h1>${emptyNote()}</section>` + viewDumbbells();
+  const W = muscleWeeks(16), view = S.settings.muscleView, data = view === "direct" ? W.direct : W.weighted;
+  const cur = W.weeks.length - 1, lastFull = cur - 1;
+  const cell = (m, v, i) => { const cls = v === 0 ? "zero lo" : v < m.min ? "lo" : m.max != null && v > m.max ? "hi" : "in"; return `<td class="c ${cls}${i === cur ? " cur" : ""}">${v % 1 ? v.toFixed(1) : v}</td>`; };
+  const heat = `<div class="scroll"><table class="heat"><thead><tr><th>Muscle</th>${W.weeks.map((w, i) => `<th class="c">${i === cur ? "now" : dmd(w).replace(" ", "<br>")}</th>`).join("")}<th class="n">Target</th><th class="n">Plan</th><th class="n">Gap*</th></tr></thead><tbody>
+    ${MUSCLES.map(m => { const lf = data[m.id][lastFull], gap = Math.max(0, m.min - lf);
+      return `<tr class="${m.pri ? "prirow" : ""}"><td class="m">${m.pri ? `<span class="prilabel">${esc(m.name)}</span>` : esc(m.name)}</td>${data[m.id].map((v, i) => cell(m, v, i)).join("")}
+      <td class="n">${m.min}${m.max ? "-" + m.max : "+"}</td><td class="n">${m.planned}${m.id === "calves" ? " gap" : ""}</td><td class="n">${gap ? `<span class="chip bad">-${gap % 1 ? gap.toFixed(1) : gap}</span>` : `<span class="chip ok">0</span>`}</td></tr>`; }).join("")}
+    </tbody></table></div>`;
+  const maxT = Math.max(1, ...W.ton);
+  const tonChart = (() => {
+    const w = 640, h = 170, padL = 44, padB = 24, bw = (w - padL - 8) / W.weeks.length;
+    const y = v => h - padB - v / maxT * (h - padB - 12);
+    const ticks = [0, maxT / 2, maxT].map(v => Math.round(v / 100) * 100);
+    return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Arm tonnage per week">
+      ${ticks.map(t => `<line class="grid" x1="${padL}" x2="${w}" y1="${y(t)}" y2="${y(t)}"/><text x="${padL - 6}" y="${y(t) + 4}" text-anchor="end">${fmt(t)}</text>`).join("")}
+      ${W.ton.map((v, i) => `<rect x="${padL + i * bw + 2}" y="${y(v)}" width="${bw - 4}" height="${h - padB - y(v)}" rx="2" fill="${i === cur ? "var(--chart-b)" : "var(--chart-a)"}"><title>${dmd(W.weeks[i])}: ${fmt(v)} kg</title></rect>`).join("")}
+      ${W.weeks.map((wk, i) => i % 2 === cur % 2 ? `<text x="${padL + i * bw + bw / 2}" y="${h - 8}" text-anchor="middle">${i === cur ? "now" : dmd(wk)}</text>` : "").join("")}
+    </svg>`;
+  })();
+  return `
+  <section class="blk" id="muscles">
+    <div class="hd"><div><div class="eyebrow">Training</div><h1>Weekly hard sets by muscle</h1></div>
+      <div class="row"><span class="lab">Count</span><div class="seg" role="group" aria-label="Count method" style="width:auto">
+        <button type="button" style="width:auto;padding:5px 10px" data-act="mview" data-v="direct" aria-pressed="${view === "direct"}">Direct only</button>
+        <button type="button" style="width:auto;padding:5px 10px" data-act="mview" data-v="weighted" aria-pressed="${view === "weighted"}">+0.5 indirect</button></div></div></div>
+    <div class="row small"><a href="#muscles">Muscles</a> · <a href="#prog">Progression</a> · <a href="#ceil">Ceiling lifts</a> · <a href="#bells">Dumbbells</a></div>
+    <div class="panel stack">${heat}
+      <div class="legend"><span>${chip("bad", "below target")}</span><span>${chip("ok", "in range")}</span><span>${chip("warn", "above range")}</span><span>Dashed: this week so far. *Gap = last full week (${dmd(W.weeks[lastFull])}) below the minimum. Plan = Block 2 sets per week, direct.</span></div>
+      <p class="assume">Muscle mapping (direct 1.0, indirect 0.5) is built from the Exercise Guide's target-muscle column. Rows: back counts both rows, chest counts floor press, fly and push-ups, forearms count reverse curl, wrist curl and farmer's walk.</p>
+    </div>
+    ${trainingBodyMap()}
+    <div class="panel stack"><div class="hd"><h3>Arm tonnage per week</h3><span class="mute">sum of weight x reps, biceps + triceps + forearm lifts, combined kg</span></div>${tonChart}
+      <p class="note">Last full week ${fmt(W.ton[lastFull])} kg, week before ${fmt(W.ton[lastFull - 1])} kg. Farmer's walk adds no tonnage because it is logged as distance.</p></div>
+  </section>
+  ${viewProgression()}
+  ${viewCeiling()}
+  ${viewDumbbells()}`;
+}
+
+function planOrder() { const ids = []; [1, 2, 4, 5].forEach(k => PLAN[k].items.forEach(it => it.ex && !ids.includes(it.ex) && ids.push(it.ex))); return ids; }
+function viewProgression() {
+  const ph = S.settings.progPhase, phases = ph === "CM" ? ["C", "M"] : [ph];
+  const ids = planOrder().concat(Object.keys(M.series).filter(id => !planOrder().includes(id)));
+  const rows = ids.map(id => progressionFor(id, phases)).filter(Boolean);
+  const pri = id => exDef(id).d.some(m => ["chest", "biceps", "triceps"].includes(m));
+  const set = x => x ? `${x.w ?? "BW"}${isNum(x.r) && x.r ? " x " + x.r : ""}` : "-";
+  const blk = b => b ? `${b.workW ?? "-"} x ${b.reps.filter(isNum).length ? Math.max(...b.reps.filter(isNum)) : (b.km.length ? Math.round(b.km[0] * 1000) + "m" : "-")}${b.nSets ? " · " + b.nSets + " sets" : ""}` : "-";
+  const tbl = rows.map(p => `<tr class="${pri(p.id) ? "prirow" : ""}"><td><b>${esc(p.def.name)}</b>${p.def.status ? ` <span class="chip neutral">${esc(p.def.status)}</span>` : ""}<div class="note">${p.def.type}, ${p.n} sessions</div></td>
+    <td class="n">${blk(p.first)}<div class="note">${dmd(p.first.d)}</div></td><td class="n">${blk(p.cur)}<div class="note">${dmd(p.cur.d)}</div></td>
+    <td class="n">${set(p.best)}<div class="note">${p.best ? dmd(p.best.d) : ""}</div></td>
+    <td class="n">${isNum(p.change) ? (p.change > 0 ? "+" : "") + fkg(p.change) + " kg" : "-"}</td>
+    <td class="n">${p.bestE ? fkg(p.bestE.e) + " kg<div class='note'>" + p.bestE.w + " x " + p.bestE.r + "</div>" : `<span class="mute">n/a</span>`}</td>
+    <td>${p.plateau ? chip("warn", p.streak + " flat") + `<div class="note">${esc(p.cause)}</div>` : chip("ok", "moving")}</td></tr>`).join("");
+  const A = M.audit.inc.filter(x => phases.includes(x.phase));
+  const proven = A.filter(x => x.cls === "proven"), jumps = A.filter(x => x.cls === "jump"), other = A.filter(x => x.cls === "unverified");
+  const arow = x => `<tr><td class="num small">${dmd(x.d)}</td><td>${esc(exDef(x.ex).name)}</td><td class="n">${x.from} to ${x.to}</td><td>${x.proven.map(t => chip("bad", t)).join(" ")} ${x.missing.map(t => chip(t.startsWith("jumped") ? "warn" : "neutral", t)).join(" ")}</td></tr>`;
+  return `<section class="blk" id="prog">
+    <div class="hd"><h2>Exercise progression</h2>
+      <div class="field"><label for="progphase">Phase</label><select class="inp" id="progphase" data-ch="progphase">
+        ${[["C", "Current (from 22 Jun)"], ["M", "Marathon build"], ["CM", "Current + marathon"], ["A", "Era A (old set)"]].map(([v, l]) => `<option value="${v}" ${ph === v ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
+    <div class="panel scroll"><table><thead><tr><th>Exercise</th><th class="n">First</th><th class="n">Current</th><th class="n">Best set</th><th class="n">Change</th><th class="n">Est. 1RM</th><th>Plateau</th></tr></thead><tbody>${tbl}</tbody></table>
+    <p class="note">Weights in kg, combined. Est. 1RM is Epley, weight x (1 + reps/30), only for sets of 12 reps or fewer. Plateau = weight, reps and sets unchanged for 3 or more sessions in a row. Impossible logged weights are left out of first, current and best.</p></div>
+    <div class="panel stack"><div class="hd"><h3>Progression audit: weight increases that broke the gate</h3><span class="mute">${A.length} increases in this phase</span></div>
+      <div class="strip"><span class="stat">Provable violations <b>${proven.length}</b></span><span class="stat">Large jumps, unverifiable <b>${jumps.length}</b></span><span class="stat">Single steps, gate not logged <b>${other.length}</b></span></div>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Exercise</th><th class="n">kg</th><th>What was missing</th></tr></thead><tbody>
+        ${proven.length ? `<tr class="grp"><td colspan="4">Provable: the two-session rule (or a logged Form/Fatigue) was not met</td></tr>${proven.map(arow).join("")}` : ""}
+        ${jumps.length ? `<tr class="grp"><td colspan="4">Unverifiable: jumped more than one valid weight, no Form/Fatigue on record</td></tr>${jumps.map(arow).join("")}` : ""}
+      </tbody></table></div>
+      ${other.length ? `<details><summary>${other.length} single-step increases where the gate cannot be checked</summary><div class="scroll"><table><tbody>${other.map(arow).join("")}</tbody></table></div></details>` : ""}
+      <p class="note">Hevy has no Form or Fatigue before your F5 Ft3 note format, so no increase can be proven clean; only the session count and step size are checkable. Era A is not audited (different dumbbell set).</p>
+    </div></section>`;
+}
+
+function viewCeiling() {
+  const d = TODAY;
+  const cards = TEMPO.map(t => {
+    const def = exDef(t.ex), hist = historyFor(t.ex).filter(b => b.phase === "C"), st = scheduledTempo(t, d);
+    const lw = latestValidW(t.ex), last = hist[hist.length - 1];
+    const rpes = hist.slice(-12).map(b => b.rpe);
+    let gate;
+    if (t.secs) {
+      const secs = last ? (last.entrySecs ?? (last.secs.length ? Math.min(...last.secs) : null)) : null;
+      if (secs == null) gate = chip("neutral", "Duration not logged") + `<div class="note">Hevy shows ${last && last.km.length ? last.km.map(k => Math.round(k * 1000) + " m").join(", ") : "nothing"}. Distance in 10 m steps cannot show time progress; log seconds.</div>`;
+      else gate = last.fatigue == null ? chip("neutral", "Fatigue not logged") : last.fatigue >= 3 && secs >= 90 ? chip("ok", "Cleared: 105s opens") : chip("warn", "Hold at 90s");
+    } else {
+      const lastT = [...hist].reverse().find(b => b.tempo);
+      if (!last || last.form == null) gate = chip("neutral", "Not logged") + `<div class="note">Form, Fatigue and tempo are not in Hevy yet. Write F5 Ft3 T${esc(st.step && !t.free ? st.step : "3-1-1")} in the exercise note.</div>`;
+      else {
+        let n = 0; for (let k = hist.length - 1; k >= 0; k--) { const b = hist[k]; if (passes(b) && (!lastT || b.tempo === lastT.tempo)) n++; else break; }
+        const idx = lastT ? t.steps.indexOf(lastT.tempo) : -1, next = idx >= 0 ? t.steps.slice(idx + 1).find(s => s !== lastT.tempo) : null;
+        gate = n >= 2 ? chip("ok", "Cleared" + (next ? ": step up to " + next : ": top of ladder")) : n === 1 ? chip("warn", "1 of 2 at " + (lastT ? lastT.tempo : "this tempo")) : chip("bad", "Not cleared") + `<div class="note">Last session: Form ${last.form}, Fatigue ${last.fatigue}${repsOK(last) === false ? ", reps incomplete" : ""}.</div>`;
+      }
+    }
+    const loggedT = [...hist].reverse().find(b => b.tempo);
+    return `<div class="ex"><div class="ex-h"><div><div class="ex-name">${esc(def.name)}</div><div class="presc"><b>${lw ? lw.w : "-"}</b> kg ${def.load === "Single" ? "single" : "combined"}${lw && lw.w >= ceilOf(def) ? "" : ` <span class="chip warn">Hevy last valid ${lw ? lw.w : "none"}</span>`}</div></div>
+      <div class="field" style="align-items:flex-end"><span class="lab">RPE, last 12 sessions</span>${sparkline(rpes)}</div></div>
+      <div class="ladder">${t.steps.map((s, i) => `<span class="step${i === st.idx ? " now" : i < st.idx ? " done" : ""}" title="Week ${i + 1}">W${i + 1} ${esc(s)}</span>`).join("")}</div>
+      <div class="row small"><span class="mute">Logged tempo:</span> <b class="num">${loggedT ? esc(loggedT.tempo) + " (" + dmd(loggedT.d) + ")" : "not logged"}</b></div>
+      <div>${gate}</div><div class="cue">${esc(t.gate)}</div></div>`;
+  }).join("");
+  return `<section class="blk" id="ceil"><div class="hd"><h2>Ceiling lifts: progress by tempo</h2><span class="mute">Ladder = Block 2 Plan weeks 1 to 4, highlighted for this week</span></div>
+    <div class="exlist">${cards}</div>
+    <p class="note">Tempo is down-pause-up in seconds. Step up only after two sessions with Form 5, Fatigue 3+ and the tempo hit on every rep (Farmer's Walk: one session with Fatigue 3+ at 90s).</p></section>`;
+}
+
+function viewDumbbells() {
+  const cw = S.checkW ?? 35, cm = S.checkMode || "Pair";
+  const ok = isValidW(cw, cm), up = nextUp(cw, cm), dn = nextDown(cw, cm);
+  const plates = (cm === "Pair" ? PAIR : SINGLE).find(p => p[0] === cw);
+  const lifts = planOrder().map(id => {
+    const def = exDef(id); const lw = M ? latestValidW(id) : null; const it = [1, 2, 4, 5].map(k => PLAN[k].items.find(x => x.ex === id)).find(Boolean);
+    const lastAny = M && M.series[id] ? M.series[id][M.series[id].length - 1] : null;
+    const w = it.w, c = ceilOf(def), nu = nextUp(w, def.load);
+    const hold = HOLDS.find(h => h[0] === id);
+    let st = w >= c ? chip("warn", "At ceiling: tempo only") : nu === c ? chip("info", "Next step is the ceiling") : chip("ok", "Room to add");
+    const bad = lastAny && lastAny.invalid && lastAny.invalid.length ? chip("bad", "Last Hevy log " + lastAny.invalid.join(", ") + " kg is impossible") : "";
+    return `<tr><td>${esc(def.name)}${hold ? `<div class="note">Hold at ${hold[1]}: ${esc(hold[2])}</div>` : ""}</td><td class="n">${w}</td><td class="n">${lw ? lw.w : "-"}</td><td class="n">${w >= c ? "-" : nu}</td><td>${st} ${bad}</td></tr>`;
+  }).join("");
+  return `<section class="blk" id="bells"><div class="hd"><h2>Dumbbells and equipment</h2><span class="mute">From the Equipment sheet. 0.5 kg handle, max 4 plates per side.</span></div>
+    <div class="grid2">
+      <div class="panel stack"><h3>Weight checker</h3>
+        <div class="fields"><div class="field"><label for="chkw">Weight (kg)</label><input class="inp${ok ? "" : " bad-in"}" id="chkw" type="number" step="0.5" inputmode="decimal" value="${cw}" data-ch="checkw"></div>
+          <div class="field"><label for="chkm">Type</label><select class="inp" id="chkm" data-ch="checkm"><option value="Pair" ${cm === "Pair" ? "selected" : ""}>Combined pair</option><option value="Single" ${cm === "Single" ? "selected" : ""}>Single dumbbell</option></select></div></div>
+        <div>${ok ? chip("ok", "Exists") + ` <span class="num small">${esc(plates ? plates[1] : "")}${cm === "Pair" ? " per dumbbell" : ""}</span>` : chip("bad", "Does not exist") + ` <span class="small">Probable logging error.</span>`}</div>
+        <dl class="kv"><dt>Next valid up</dt><dd>${up ?? "at ceiling"}</dd><dt>Next valid down</dt><dd>${dn ?? "-"}</dd><dt>Ceiling</dt><dd>${cm === "Pair" ? PAIR_CEIL + " combined (18.5 per dumbbell)" : SINGLE_CEIL + " single"}</dd></dl>
+        <p class="note">33 and 35 kg combined do not exist (34 jumps to 36). Single: 21 and 22 do not exist (20.5, 21.5, 22.5).</p>
+      </div>
+      <div class="panel stack"><h3>Valid weights</h3>
+        <div><span class="lab">Combined (kg)</span><div class="ladder">${PAIR_W.map(w => `<span class="step">${w}</span>`).join("")}</div></div>
+        <div><span class="lab">Single (kg)</span><div class="ladder">${SINGLE_W.map(w => `<span class="step">${w}</span>`).join("")}</div></div>
+        <details><summary>Plates per side</summary><div class="scroll"><table><thead><tr><th class="n">Combined</th><th>Each dumbbell</th></tr></thead><tbody>${PAIR.map(p => `<tr><td class="n">${p[0]}</td><td class="small">${p[1]}</td></tr>`).join("")}</tbody></table></div></details>
+      </div>
+    </div>
+    <div class="panel scroll"><table><thead><tr><th>Lift</th><th class="n">Plan</th><th class="n">Hevy last valid</th><th class="n">Next valid</th><th>Status</th></tr></thead><tbody>${lifts}</tbody></table></div>
+  </section>`;
+}
+
+/* ===== BODY ===== */
+function bodyCalc() {
+  const G = S.goals, daily = S.body.daily.slice().sort((a, b) => a.d.localeCompare(b.d));
+  const avg7 = d => { const xs = daily.filter(x => x.d > addDays(d, -7) && x.d <= d && isNum(x.kg)).map(x => x.kg); return xs.length ? xs.reduce((a, c) => a + c, 0) / xs.length : null; };
+  const latest = daily.filter(x => isNum(x.kg)).pop() || null;
+  const latest7 = latest ? avg7(latest.d) : null;
+  const ready = G.startDate && isNum(G.startKg) && isNum(G.targetKg) && G.targetDate;
+  const path = ws => ready ? G.startKg - (G.startKg - G.targetKg) * Math.min(1, Math.max(0, daysBetween(G.startDate, addDays(ws, 3)) / daysBetween(G.startDate, G.targetDate))) : null;
+  const weeksLeft = ready ? Math.max(0, daysBetween(TODAY, G.targetDate) / 7) : null;
+  const remaining = ready ? (isNum(latest7) ? latest7 : G.startKg) - G.targetKg : null;
+  const reqPace = ready && weeksLeft > 0 ? Math.max(0, remaining) / weeksLeft : null;
+  const dayKcal = mealDayTotals().v.kcal;
+  const deficit = ENERGY.tdee - dayKcal, mathPace = deficit * 7 / ENERGY.kcalPerKgFat;
+  const weeks = [];
+  if (ready) { for (let ws = weekStart(G.startDate); ws <= G.targetDate; ws = addDays(ws, 7)) {
+    const xs = daily.filter(x => x.d >= ws && x.d < addDays(ws, 7) && isNum(x.kg)).map(x => x.kg);
+    const av = xs.length ? xs.reduce((a, c) => a + c, 0) / xs.length : null, p = path(ws), dv = isNum(av) ? av - p : null;
+    const meas = S.body.weekly.filter(x => x.d >= ws && x.d < addDays(ws, 7)).pop() || null;
+    weeks.push({ ws, no: weekNo(ws), av, p, dv, n: xs.length, st: dv == null ? null : dv < -0.2 ? ["ok", "Ahead"] : dv <= 0.2 ? ["ok", "On track"] : dv <= 0.6 ? ["warn", "Slightly behind"] : ["bad", "Behind"], meas });
+  } }
+  weeks.forEach((w, i) => { const pr = weeks.slice(0, i).reverse().find(x => isNum(x.av)); w.ch = isNum(w.av) && pr ? w.av - pr.av : null; });
+  return { G, daily, avg7, latest, latest7, ready, path, weeksLeft, remaining, reqPace, dayKcal, deficit, mathPace, weeks };
+}
+function viewBody() {
+  const B = bodyCalc(), G = B.G;
+  const goalForm = `<details ${B.ready ? "" : "open"}><summary>Goals${B.ready ? `: ${G.startKg} to ${G.targetKg} kg by ${dmd(G.targetDate)}` : " (not set)"}</summary>
+    <div class="fields">${[["startDate", "Start date", "date"], ["startKg", "Start weight (kg)", "number"], ["targetKg", "Target weight (kg)", "number"], ["targetDate", "Target date", "date"], ["startBf", "Start body fat %", "number"], ["targetBfLo", "Target BF % low", "number"], ["targetBfHi", "Target BF % high", "number"], ["projPace", "Your projected pace (kg/wk)", "number"]]
+      .map(([k, l, t]) => `<div class="field"><label for="g-${k}">${l}</label><input class="inp" id="g-${k}" type="${t}" ${t === "number" ? 'step="any" inputmode="decimal"' : ""} value="${esc(G[k] ?? "")}" data-ch="goal" data-f="${k}"></div>`).join("")}</div></details>`;
+  const last = B.weeks.filter(w => isNum(w.av)).pop();
+  const status = last && last.st ? chip(last.st[0], last.st[1]) : chip("neutral", "No weekly average yet");
+  // chart
+  let chart = "";
+  if (B.ready) {
+    const x0 = G.startDate, x1 = G.targetDate > TODAY ? G.targetDate : TODAY, span = Math.max(1, daysBetween(x0, x1));
+    const ys = B.daily.map(x => x.kg).filter(isNum).concat([G.startKg, G.targetKg]);
+    const proj = isNum(G.projPace) ? G.projPace : B.mathPace;
+    const projEnd = G.startKg - proj * daysBetween(x0, G.targetDate) / 7; ys.push(projEnd);
+    const lo = Math.floor(Math.min(...ys) - 0.5), hi = Math.ceil(Math.max(...ys) + 0.5);
+    const w = 640, h = 230, L = 40, R = 10, T = 10, Bm = 26;
+    const X = d => L + daysBetween(x0, d) / span * (w - L - R), Y = v => T + (hi - v) / (hi - lo) * (h - T - Bm);
+    const yt = []; for (let v = lo; v <= hi; v += (hi - lo > 6 ? 2 : 1)) yt.push(v);
+    const xt = []; for (let d = weekStart(x0); d <= x1; d = addDays(d, 14)) if (d >= x0) xt.push(d);
+    const avgPts = B.daily.filter(x => isNum(x.kg)).map(x => [x.d, B.avg7(x.d)]);
+    chart = `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Weight against target path">
+      ${yt.map(v => `<line class="grid" x1="${L}" x2="${w - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
+      ${xt.map(d => `<text x="${X(d)}" y="${h - 8}" text-anchor="middle">${dmd(d)}</text>`).join("")}
+      <line x1="${X(x0)}" y1="${Y(G.startKg)}" x2="${X(G.targetDate)}" y2="${Y(G.targetKg)}" stroke="var(--ok)" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <line x1="${X(x0)}" y1="${Y(G.startKg)}" x2="${X(G.targetDate)}" y2="${Y(projEnd)}" stroke="var(--warn)" stroke-width="1.6" stroke-dasharray="2 4"/>
+      ${B.daily.filter(x => isNum(x.kg)).map(x => `<circle cx="${X(x.d)}" cy="${Y(x.kg)}" r="2.6" fill="var(--chart-b)"><title>${dmd(x.d)} ${x.kg} kg</title></circle>`).join("")}
+      ${avgPts.length > 1 ? `<path d="${avgPts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="var(--chart-a)" stroke-width="2.2"/>` : ""}
+      ${TODAY >= x0 && TODAY <= x1 ? `<line x1="${X(TODAY)}" x2="${X(TODAY)}" y1="${T}" y2="${h - Bm}" stroke="var(--line)"/><text x="${X(TODAY) + 4}" y="${T + 10}">today</text>` : ""}
+    </svg><div class="legend"><span><i style="background:var(--chart-a)"></i>7-day average</span><span><i style="background:var(--chart-b)"></i>daily weigh-in</span><span><i style="background:var(--ok)"></i>target path</span><span><i style="background:var(--warn)"></i>projected at ${proj.toFixed(2)} kg/wk</span></div>`;
+  }
+  const leanStart = B.ready && isNum(G.startBf) ? G.startKg * (1 - G.startBf / 100) : null;
+  const leanLo = B.ready && isNum(G.targetBfHi) ? G.targetKg * (1 - G.targetBfHi / 100) : null, leanHi = B.ready && isNum(G.targetBfLo) ? G.targetKg * (1 - G.targetBfLo / 100) : null;
+  const projLand = B.ready ? G.startKg - (isNum(G.projPace) ? G.projPace : B.mathPace) * daysBetween(G.startDate, G.targetDate) / 7 : null;
+  const recent = B.daily.slice(-10).reverse();
+  return `<section class="blk"><div class="hd"><div><div class="eyebrow">Body</div><h1>Weight and measurements</h1></div>${status}</div>
+    ${B.ready ? `<div class="strip">
+      <span class="stat">Latest <b>${B.latest ? fkg(B.latest.kg) + " kg" : "-"}</b> <span class="mute small">${B.latest ? dmd(B.latest.d) : ""}</span></span>
+      <span class="stat">7-day avg <b>${isNum(B.latest7) ? fkg(B.latest7) : "-"}</b></span>
+      <span class="stat">To go <b>${fkg(B.remaining)} kg</b> in <b>${fkg(B.weeksLeft)}</b> wk</span>
+      <span class="stat">Required <b>${isNum(B.reqPace) ? B.reqPace.toFixed(2) : "-"} kg/wk</b></span>
+      <span class="stat">Projected <b>${isNum(G.projPace) ? G.projPace.toFixed(2) : "-"}</b> yours · <b>${B.mathPace.toFixed(2)}</b> workbook math</span></div>` : ""}
+    <div class="panel stack">${goalForm}${chart || `<p class="mute">Set the goals to draw the target path.</p>`}</div>
+    ${B.ready ? `<div class="panel stack"><h3>Required versus projected pace</h3><ul class="plain">
+      <li>Required: ${fkg(B.remaining)} kg in ${fkg(B.weeksLeft)} weeks is <b>${isNum(B.reqPace) ? B.reqPace.toFixed(2) : "-"} kg a week</b>.</li>
+      <li>Workbook math: TDEE ${fmt(ENERGY.tdee)} kcal (Nutrition sheet, from Apple Health) minus the ${fmt(B.dayKcal)} kcal meal plan is ${fmt(B.deficit)} kcal a day, or <b>${B.mathPace.toFixed(2)} kg a week</b> at ${fmt(ENERGY.kcalPerKgFat)} kcal per kg (a rule of thumb, an assumption).</li>
+      ${isNum(G.projPace) ? `<li>Your estimate: <b>${G.projPace.toFixed(2)} kg a week</b>.</li>` : ""}
+      <li>At the projected pace you land near <b>${fkg(projLand)} kg</b> on ${dmd(G.targetDate)}, not ${G.targetKg} kg. Closing the gap needs a bigger deficit or a later date.</li>
+      ${leanStart != null && leanLo != null ? `<li>Lean mass: ${fkg(leanStart)} kg now (${G.startKg} kg at ${G.startBf}%). ${G.targetKg} kg at ${G.targetBfLo}-${G.targetBfHi}% means ${fkg(leanLo)}-${fkg(leanHi)} kg lean, a loss of ${fkg(leanStart - leanHi)}-${fkg(leanStart - leanLo)} kg. That is at or above your 2 kg limit, so the weight and body-fat targets conflict unless the scale weight lands higher.</li>` : ""}
+    </ul></div>` : ""}
+    <div class="grid2">
+      <div class="panel stack"><h3>Log a weigh-in</h3>
+        <div class="fields"><div class="field"><label for="bw-d">Date</label><input class="inp" id="bw-d" type="date" value="${TODAY}"></div>
+          <div class="field"><label for="bw-kg">Weight (kg)</label><input class="inp" id="bw-kg" type="number" step="0.05" inputmode="decimal"></div>
+          <div class="field"><label for="bw-bf">Body fat % (optional)</label><input class="inp" id="bw-bf" type="number" step="0.1" inputmode="decimal"></div></div>
+        <div><button class="btn primary" data-act="add-weigh">Save weigh-in</button></div>
+        ${recent.length ? `<div class="scroll"><table><thead><tr><th>Date</th><th class="n">kg</th><th class="n">7-day</th><th class="n">BF %</th><th></th></tr></thead><tbody>${recent.map(x => `<tr><td class="num small">${dshort(x.d)}</td><td class="n">${fkg(x.kg)}</td><td class="n">${fkg(B.avg7(x.d))}</td><td class="n">${x.bf ?? "-"}</td><td><button class="btn small danger" data-act="del-weigh" data-k="${x.d}" aria-label="Delete ${x.d}">Delete</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="mute small">No weigh-ins yet. Weigh every morning; judge the 7-day and weekly averages, never a single day.</p>`}
+      </div>
+      <div class="panel stack"><h3>Weekly measurements</h3><p class="note">Every Monday before training: arm relaxed at mid-biceps, chest at the nipple line.</p>
+        <div class="fields"><div class="field"><label for="ms-d">Date</label><input class="inp" id="ms-d" type="date" value="${TODAY}"></div>
+          <div class="field"><label for="ms-arm">Arm, relaxed (cm)</label><input class="inp" id="ms-arm" type="number" step="0.1" inputmode="decimal"></div>
+          <div class="field"><label for="ms-chest">Chest (cm)</label><input class="inp" id="ms-chest" type="number" step="0.1" inputmode="decimal"></div>
+          <div class="field"><label for="ms-bf">Body fat %</label><input class="inp" id="ms-bf" type="number" step="0.1" inputmode="decimal"></div></div>
+        <div><button class="btn primary" data-act="add-meas">Save measurements</button></div>
+        ${S.body.weekly.length ? `<div class="scroll"><table><thead><tr><th>Date</th><th class="n">Arm</th><th class="n">Chest</th><th class="n">BF %</th><th></th></tr></thead><tbody>${S.body.weekly.slice().reverse().map((x, i) => `<tr><td class="num small">${dshort(x.d)}</td><td class="n">${x.arm ?? "-"}</td><td class="n">${x.chest ?? "-"}</td><td class="n">${x.bf ?? "-"}</td><td><button class="btn small danger" data-act="del-meas" data-k="${x.d}" aria-label="Delete ${x.d}">Delete</button></td></tr>`).join("")}</tbody></table></div>` : `<p class="mute small">No measurements yet. The workbook has none either.</p>`}
+      </div></div>
+    ${B.ready ? `<div class="panel scroll"><table><thead><tr><th>Week</th><th>Starts</th><th class="n">Avg kg</th><th class="n">Change</th><th class="n">Target path</th><th class="n">vs path</th><th>Status</th><th class="n">Arm</th><th class="n">Chest</th><th class="n">BF %</th></tr></thead><tbody>
+      ${B.weeks.map(w => { const fa = B.weeks.find(x => x.meas && isNum(x.meas.arm)); return `<tr><td class="num">${w.no}</td><td class="num small">${dmd(w.ws)}</td><td class="n">${fkg(w.av)}${w.n ? `<div class="note">${w.n} days</div>` : ""}</td><td class="n">${isNum(w.ch) ? (w.ch > 0 ? "+" : "") + w.ch.toFixed(2) : "-"}</td><td class="n">${w.p.toFixed(2)}</td><td class="n">${isNum(w.dv) ? (w.dv > 0 ? "+" : "") + w.dv.toFixed(2) : "-"}</td><td>${w.st ? chip(w.st[0], w.st[1]) : ""}</td>
+        <td class="n">${w.meas && isNum(w.meas.arm) ? w.meas.arm + (fa && fa !== w ? ` <span class="note">${(w.meas.arm - fa.meas.arm > 0 ? "+" : "") + (w.meas.arm - fa.meas.arm).toFixed(1)}</span>` : "") : "-"}</td><td class="n">${w.meas && isNum(w.meas.chest) ? w.meas.chest : "-"}</td><td class="n">${w.meas && isNum(w.meas.bf) ? w.meas.bf : "-"}</td></tr>`; }).join("")}
+    </tbody></table><p class="note">Target path is a straight line from start to target weight, read at mid-week (Body Metrics sheet). Status tolerance from the workbook, itself an assumption: within 0.2 kg on track, up to 0.6 kg over slightly behind.</p></div>` : ""}
+  </section>`;
+}
+
+/* ===== MEALS ===== */
+const foodById = id => S.foods.find(f => f.id === id);
+const foodName = id => (foodById(id) || { name: id }).name;
+const foodUnit = id => { const f = foodById(id); return !f ? "" : f.unit === "pc" ? " pc" : f.unit === "ml" ? " ml" : " g"; };
+function costPerUnit(f) { if (!f || !isNum(f.price) || !isNum(f.priceQty) || f.priceQty <= 0) return null; return f.price / (f.priceQty * ((isNum(f.usable) ? f.usable : 100) / 100) * (isNum(f.ratio) && f.ratio > 0 ? f.ratio : 1)); }
+function itemCost(id, amt) { const c = costPerUnit(foodById(id)); return c == null ? null : c * amt; }
+function itemMacros(id, amt) {
+  const f = foodById(id); if (!f) return null; const p = f.per100, keys = ["kcal", "p", "c", "f", "fiber"];
+  if (keys.some(k => !isNum(p[k]))) return null; const fac = f.unit === "pc" ? amt : amt / 100;
+  return Object.fromEntries(keys.map(k => [k, p[k] * fac]));
+}
+function mealMacros(m) {
+  const seed = MEALS_SEED.find(x => x.id === m.id);
+  const same = seed && JSON.stringify(seed.items) === JSON.stringify(m.items);
+  if (!m.items.length) return { v: m.page || { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 }, src: "page" };
+  const parts = m.items.map(([id, a]) => itemMacros(id, a));
+  if (parts.every(Boolean)) return { v: parts.reduce((o, x) => { for (const k in x) o[k] = (o[k] || 0) + x[k]; return o; }, {}), src: "db" };
+  if (same && m.page) return { v: m.page, src: "page" };
+  return { v: null, src: "none" };
+}
+function mealCost(m) { let sum = 0, miss = 0; m.items.forEach(([id, a]) => { const c = itemCost(id, a); if (c == null) miss++; else sum += c; }); return { sum, miss }; }
+function mealDayTotals() {
+  const v = { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 }; let missing = 0;
+  S.meals.forEach(m => { const x = mealMacros(m); if (!x.v) { missing++; return; } for (const k in v) v[k] += x.v[k]; });
+  return { v, missing };
+}
+function stockCalc() {
+  const st = S.stock, meals = [];
+  const order = ["lunch", "dinner"]; let d = st.startDate, mi = order.indexOf(st.startMeal); if (mi < 0) mi = 1;
+  for (let k = 0; k < (st.meals || 0); k++) { meals.push({ d, m: order[mi] }); mi++; if (mi > 1) { mi = 0; d = addDays(d, 1); } }
+  const amt = (meal, food) => { const m = S.meals.find(x => x.id === meal); const it = m && m.items.find(x => x[0] === food); return it ? it[1] : 0; };
+  const chickenUse = (st.chickenG || 0) * ((st.chickenUsable ?? 100) / 100);
+  const need = { chicken: 0, veg: 0, rice: 0, beans: 0 };
+  let cLeft = chickenUse, vLeft = st.vegG || 0, rLeft = isNum(st.riceCookedG) ? st.riceCookedG : 0;
+  const cells = meals.map(x => {
+    const c = amt(x.m, "chicken"), v = amt(x.m, "veg"), r = amt(x.m, "rice"), b = amt(x.m, "beans");
+    need.chicken += c; need.veg += v; need.rice += r; need.beans += b;
+    const ch = cLeft >= c ? "full" : cLeft > 0 ? "part" : "none"; const cGot = Math.max(0, Math.min(c, cLeft)); cLeft -= c;
+    const vg = vLeft >= v ? "full" : vLeft > 0 ? "part" : "none"; vLeft -= v;
+    const rc = rLeft >= r ? "full" : rLeft > 0 ? "part" : "none"; rLeft -= r;
+    const fridge = st.chickenCooked ? daysBetween(st.chickenCooked, x.d) < (st.fridgeDays || 3) : true;
+    return Object.assign(x, { ch, cGot, vg, rc, fridge });
+  });
+  const per = { chicken: amt("lunch", "chicken") + amt("dinner", "chicken"), veg: amt("lunch", "veg") + amt("dinner", "veg"), rice: amt("lunch", "rice") + amt("dinner", "rice"), beans: amt("dinner", "beans") };
+  return { meals: cells, need, chickenUse, per, short: { chicken: Math.max(0, need.chicken - chickenUse), veg: Math.max(0, need.veg - (st.vegG || 0)), rice: Math.max(0, need.rice - (isNum(st.riceCookedG) ? st.riceCookedG : 0)), beans: Math.max(0, need.beans - (st.beansG || 0)) } };
+}
+function viewMeals() {
+  const T = mealDayTotals().v, keys = [["kcal", "Energy", "kcal", TARGETS.kcal, 2800], ["p", "Protein", "g", TARGETS.p, 200], ["c", "Carbs", "g", TARGETS.c, 350], ["f", "Fat", "g", TARGETS.f, 90], ["fiber", "Fiber", "g", TARGETS.fiber, 45]];
+  const bars = keys.map(([k, l, u, t, mx]) => { const v = T[k]; const s = v < t[0] ? ["warn", fmt(t[0] - v) + " " + u + " short"] : v > t[1] ? ["warn", fmt(v - t[1]) + " " + u + " over"] : ["ok", "In range"];
+    return `<div class="mbar"><div><b>${l}</b> <span class="mute small">${u}</span></div><div class="bar"><span class="band" style="left:${t[0] / mx * 100}%;width:${(t[1] - t[0]) / mx * 100}%"></span><i style="width:${Math.min(100, v / mx * 100)}%;background:var(--chart-a)"></i></div><div class="row"><b class="num">${fmt(v)}</b>${chip(s[0], s[1])}</div></div>`; }).join("");
+  const L = S.meals.find(m => m.id === "lunch"), D = S.meals.find(m => m.id === "dinner");
+  const lc = mealCost(L), dc = mealCost(D), lm = mealMacros(L), dm = mealMacros(D);
+  let day = 0, dayMiss = 0; S.meals.forEach(m => { const c = mealCost(m); day += c.sum; dayMiss += c.miss; });
+  const unpriced = [...new Set(S.meals.flatMap(m => m.items.filter(([id]) => costPerUnit(foodById(id)) == null && !["coffee", "creatine"].includes(id)).map(([id]) => foodName(id))))];
+  const builder = S.meals.map(m => { const mc = mealCost(m), mm = mealMacros(m);
+    return `<tr class="grp"><td colspan="5">${esc(m.time)} · ${esc(m.name)} <span style="float:right">${mm.src === "db" ? chip("ok", "from food database") : mm.src === "page" ? chip("info", "meal_prep.html estimate") : chip("warn", "needs macros")}</span></td></tr>
+      ${m.items.length ? m.items.map(([id, a], i) => { const c = itemCost(id, a); return `<tr><td>${esc(foodName(id))}</td><td class="n"><input class="inp" style="width:88px;text-align:right" type="number" step="any" inputmode="decimal" id="mi-${m.id}-${i}" aria-label="${esc(foodName(id))} amount" value="${a}" data-ch="mealamt" data-m="${m.id}" data-i="${i}"><span class="mute small">${foodUnit(id)}</span></td><td class="n">${c == null ? (["coffee", "creatine"].includes(id) ? `<span class="mute">not costed</span>` : chip("info", "needs price")) : peso(c)}</td><td class="n">${(() => { const x = itemMacros(id, a); return x ? fmt(x.kcal) : "-"; })()}</td><td><button class="btn small" data-act="mealdel" data-m="${m.id}" data-i="${i}" aria-label="Remove ${esc(foodName(id))}">Remove</button></td></tr>`; }).join("") : `<tr><td colspan="5" class="mute small">${esc(m.text || "")}</td></tr>`}
+      <tr><td colspan="5"><div class="row small"><label for="add-${m.id}" class="lab">Add food</label><select class="inp" style="width:auto" id="add-${m.id}" data-ch="mealadd" data-m="${m.id}"><option value="">Choose</option>${S.foods.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join("")}</select>
+        <span class="mute">Meal: <b class="num">${peso(mc.sum)}</b>${mc.miss ? ` + ${mc.miss} unpriced` : ""} · ${mm.v ? `<span class="num">${fmt(mm.v.kcal)} kcal, P ${fmt(mm.v.p)} C ${fmt(mm.v.c)} F ${fmt(mm.v.f)} fiber ${fmt(mm.v.fiber)}</span>` : "macros unknown"}</span></div></td></tr>`; }).join("");
+  const foods = S.foods.map((f, i) => { const c = costPerUnit(f); const u = f.unit === "pc" ? "pc" : f.unit;
+    const inp = (k, v, w, ph) => `<input class="inp" style="width:${w}px" type="number" step="any" inputmode="decimal" id="fd-${f.id}-${k}" aria-label="${esc(f.name)} ${k}" value="${v ?? ""}" placeholder="${ph || ""}" data-ch="food" data-i="${i}" data-f="${k}">`;
+    return `<tr><td><b>${esc(f.name)}</b><div class="note">${esc(f.src)}</div></td>
+      ${["kcal", "p", "c", "f", "fiber", "sugar"].map(k => `<td class="n">${inp("m." + k, f.per100[k], 62, "-")}</td>`).join("")}
+      <td class="n">${inp("price", f.price, 76, "needs price")}</td><td class="n">${inp("priceQty", f.priceQty, 70, "qty")}</td><td class="n">${inp("usable", f.usable, 56)}</td><td class="n">${inp("ratio", f.ratio, 56)}</td>
+      <td class="n">${c == null ? chip("info", "needs price") : peso(c * (u === "pc" ? 1 : 100)) + `<div class="note">per ${u === "pc" ? "pc" : "100 " + u}</div>`}</td></tr>`; }).join("");
+  const K = stockCalc(), st = S.stock;
+  const cpp = (cost, p) => isNum(p) && p > 0 ? peso(cost / p) : "-";
+  const cell = (x, k) => { const lab = DOW[dow(x.d)] + "<br>" + (x.m === "lunch" ? "L" : "D");
+    if (k === "ch") return `<div class="mcell ${x.ch === "none" ? "c-need" : x.ch === "part" ? "c-part" : x.fridge ? "c-fridge" : "c-freeze"}" title="${dmd(x.d)} ${x.m}${x.ch === "part" ? ": about " + Math.round(x.cGot) + " g" : ""}">${lab}</div>`;
+    const v = x[k]; return `<div class="mcell ${v === "full" ? "c-have" : v === "part" ? "c-part" : "c-need"}">${lab}</div>`; };
+  const shop = [["Chicken, boneless", K.short.chicken, "g", itemCost("chicken", K.short.chicken)],
+    ["Mixed veg, cooked", K.short.veg, "g", itemCost("veg", K.short.veg)],
+    ["Mung beans", K.short.beans, "g cooked (" + fmt(K.short.beans / 2.5) + " g dry)", itemCost("beans", K.short.beans)],
+    ["Rice" + (isNum(st.riceCookedG) ? "" : " (stock not weighed, counted as 0)"), K.short.rice, "g cooked (" + fmt(K.short.rice / 2.8) + " g raw)", itemCost("rice", K.short.rice)]];
+  const shopTot = shop.reduce((a, r) => a + (r[3] || 0), 0), shopMiss = shop.filter(r => r[1] > 0 && r[3] == null).length;
+  const days = (have, per) => per > 0 ? have / per : null;
+  const sfield = (k, l, t = "number") => `<div class="field"><label for="st-${k}">${l}</label><input class="inp" id="st-${k}" type="${t}" ${t === "number" ? 'step="any" inputmode="decimal"' : ""} value="${esc(st[k] ?? "")}" data-ch="stock" data-f="${k}"></div>`;
+  return `<section class="blk"><div class="hd"><div><div class="eyebrow">Meals</div><h1>Meal prep and cost</h1><p class="lede">One flat day, repeated. Same portions on lift and rest days, no whey.</p></div></div>
+    <div class="strip"><span class="stat">Lunch <b>${peso(lc.sum)}</b>${lc.miss ? " + unpriced" : ""}</span><span class="stat">Dinner <b>${peso(dc.sum)}</b>${dc.miss ? ` <span class="mute small">before beans</span>` : ""}</span><span class="stat">Priced day <b>${peso(day)}</b> <span class="mute small">${dayMiss} items unpriced</span></span><span class="stat">Per g protein, lunch <b>${lm.v ? cpp(lc.sum, lm.v.p) : "-"}</b></span><span class="stat">30 days lunch + dinner <b>${peso((lc.sum + dc.sum) * 30)}</b></span></div>
+    <div class="panel stack"><div class="hd"><h3>One day against your targets</h3><span class="mute">Estimates, about 10% either way</span></div>${bars}
+      <p class="note">Sugar: the page lists ${PAGE_DAY.sugarTotal} g total sugar a day, mostly banana, milk and vegetables. Added sugar is not tracked in your files, so the ${TARGETS.addedSugarMax} g added-sugar cap cannot be checked yet. Water ${TARGETS.waterL[0]}-${TARGETS.waterL[1]} L.</p></div>
+    <div class="panel stack"><div class="hd"><h3>Cost per meal</h3><span class="mute">Only prices you entered are used</span></div>
+      <div class="scroll"><table><thead><tr><th>Meal</th><th class="n">Cost</th><th class="n">Protein g</th><th class="n">Per g protein</th><th>Unpriced</th></tr></thead><tbody>
+      ${S.meals.filter(m => m.items.length).map(m => { const c = mealCost(m), x = mealMacros(m); return `<tr><td>${esc(m.name)}</td><td class="n">${peso(c.sum)}</td><td class="n">${x.v ? fmt(x.v.p) : "-"}</td><td class="n">${c.miss ? "-" : x.v ? cpp(c.sum, x.v.p) : "-"}</td><td>${c.miss ? chip("info", c.miss + " needs price") : chip("ok", "all priced")}</td></tr>`; }).join("")}
+      </tbody><tfoot><tr><td>Day, priced items</td><td class="n">${peso(day)}</td><td class="n">${fmt(T.p)}</td><td class="n">${dayMiss ? "-" : cpp(day, T.p)}</td><td>${unpriced.length ? esc(unpriced.join(", ")) : ""}</td></tr></tfoot></table></div></div>
+    <div class="panel stack"><div class="hd"><h3>Meal builder</h3><span class="mute">Gram weights are cooked weights. Change an amount and costs update.</span></div>
+      <div class="scroll"><table><thead><tr><th>Food</th><th class="n">Amount</th><th class="n">Cost</th><th class="n">kcal</th><th></th></tr></thead><tbody>${builder}</tbody></table></div>
+      <div><button class="btn small" data-act="meals-reset">Reset meals to meal_prep.html</button></div></div>
+    <div class="panel stack"><div class="hd"><h3>Stock and how long it lasts</h3><span class="mute">From ${dshort(st.startDate)} ${esc(st.startMeal)}, ${st.meals} lunch and dinner meals</span></div>
+      <div class="fields">${sfield("chickenG", "Chicken bought, boneless g")}${sfield("chickenCost", "Chicken cost (PHP)")}${sfield("chickenUsable", "Usable after skin %")}${sfield("chickenCooked", "Chicken cooked on", "date")}${sfield("vegG", "Cooked mixed veg g")}${sfield("riceCookedG", "Cooked rice, weighed g")}${sfield("beansG", "Cooked mung beans g")}${sfield("startDate", "Plan starts", "date")}
+        <div class="field"><label for="st-startMeal">First meal</label><select class="inp" id="st-startMeal" data-ch="stock" data-f="startMeal"><option value="lunch" ${st.startMeal === "lunch" ? "selected" : ""}>Lunch</option><option value="dinner" ${st.startMeal === "dinner" ? "selected" : ""}>Dinner</option></select></div>
+        ${sfield("meals", "Meals to cover")}${sfield("fridgeDays", "Fridge days for cooked chicken")}</div>
+      <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Have</th><th class="n">Per day</th><th class="n">Lasts</th><th class="n">Need</th><th class="n">Short</th></tr></thead><tbody>
+        <tr><td>Chicken, usable after skin</td><td class="n">${fmt(K.chickenUse)} g</td><td class="n">${fmt(K.per.chicken)} g</td><td class="n">${fkg(days(K.chickenUse, K.per.chicken))} days · ${fkg(K.chickenUse / (K.per.chicken / 2))} meals</td><td class="n">${fmt(K.need.chicken)} g</td><td class="n">${K.short.chicken ? chip("warn", fmt(K.short.chicken) + " g") : chip("ok", "0")}</td></tr>
+        <tr><td>Mixed veg, cooked</td><td class="n">${fmt(st.vegG)} g</td><td class="n">${fmt(K.per.veg)} g</td><td class="n">${fkg(days(st.vegG, K.per.veg))} days</td><td class="n">${fmt(K.need.veg)} g</td><td class="n">${K.short.veg ? chip("bad", fmt(K.short.veg) + " g") : chip("ok", "0")}</td></tr>
+        <tr><td>Rice, cooked${isNum(st.riceCookedG) ? `<div class="note">${fmt(st.riceCookedG / 2.8)} g uncooked, ${peso(st.riceCookedG / 2.8 * (foodById("rice").price || 0) / (foodById("rice").priceQty || 1000))}</div>` : `<div class="note">${esc(st.riceNote)}. Weigh the pot and enter grams.</div>`}</td><td class="n">${isNum(st.riceCookedG) ? fmt(st.riceCookedG) + " g" : chip("info", "weigh it")}</td><td class="n">${fmt(K.per.rice)} g</td><td class="n">${isNum(st.riceCookedG) ? fkg(days(st.riceCookedG, K.per.rice)) + " days" : "-"}</td><td class="n">${fmt(K.need.rice)} g</td><td class="n">${isNum(st.riceCookedG) ? (K.short.rice ? chip("warn", fmt(K.short.rice) + " g") : chip("ok", "0")) : "-"}</td></tr>
+        <tr><td>Mung beans, cooked</td><td class="n">${fmt(st.beansG)} g</td><td class="n">${fmt(K.per.beans)} g</td><td class="n">${fkg(days(st.beansG, K.per.beans))} days</td><td class="n">${fmt(K.need.beans)} g</td><td class="n">${K.short.beans ? chip("bad", fmt(K.short.beans) + " g") : chip("ok", "0")}</td></tr>
+      </tbody></table></div>
+      <div><div class="lab">Chicken by meal</div><div class="mstrip">${K.meals.map(x => cell(x, "ch")).join("")}</div>
+        <div class="legend" style="margin-top:6px"><span>${chip("info", "fridge")}</span><span>${chip("neutral", "freezer")}</span><span>${chip("warn", "short portion")}</span><span>${chip("bad", "need to buy")}</span></div>
+        <p class="note">Fridge rule from meal_prep.html: cooked chicken keeps 3 to 4 days, so meals more than ${st.fridgeDays} days after cooking go to the freezer in 160 g bags; thaw overnight and use within a day.</p></div>
+      <div><div class="lab">Vegetables by meal</div><div class="mstrip">${K.meals.map(x => cell(x, "vg")).join("")}</div></div>
+      <div><div class="lab">Rice by meal</div><div class="mstrip">${K.meals.map(x => cell(x, "rc")).join("")}</div>${isNum(st.riceCookedG) ? "" : `<p class="note">If the 7 cups were already cooked, the page's 2 cups = 320 g suggests about 1,120 g (assumption). Freeze rice portions past day 3.</p>`}</div>
+    </div>
+    <div class="panel stack"><div class="hd"><h3>Shopping list</h3><span class="mute">To cover the meals above</span></div>
+      <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th><th class="n">Cost</th></tr></thead><tbody>
+      ${shop.filter(r => r[1] > 0).map(r => `<tr><td>${esc(r[0])}</td><td class="n">${fmt(r[1])} ${esc(r[2])}</td><td class="n">${r[3] == null ? chip("info", "needs price") : peso(r[3])}</td></tr>`).join("") || `<tr><td colspan="3" class="mute">Nothing short.</td></tr>`}
+      </tbody><tfoot><tr><td>Total, priced items</td><td></td><td class="n">${peso(shopTot)}${shopMiss ? ` <span class="mute small">+ ${shopMiss} unpriced</span>` : ""}</td></tr></tfoot></table></div>
+      <p class="note">Eggs, milk, bananas, Skyflakes and Kewpie are not tracked as stock in your files; check them at home.</p></div>
+    <div class="panel stack"><div class="hd"><h3>Food database</h3><span class="mute">Macros per 100 g (per piece for eggs, bananas, Skyflakes; per 100 ml milk). Blank = not in your files.</span></div>
+      <div class="scroll"><table><thead><tr><th>Food</th><th class="n">kcal</th><th class="n">P</th><th class="n">C</th><th class="n">F</th><th class="n">Fiber</th><th class="n">Sugar</th><th class="n">Price PHP</th><th class="n">For qty</th><th class="n">Usable %</th><th class="n">Cooked ratio</th><th class="n">Cost</th></tr></thead><tbody>${foods}</tbody></table></div>
+      <p class="note">Price is for the quantity shown (g, ml or pieces as bought). Usable % covers skin and bone. Cooked ratio = cooked grams per bought gram (rice 2.8, dry beans 2.5).</p>
+      <div class="row"><input class="inp" style="width:220px" id="newfood" placeholder="New food name" aria-label="New food name"><select class="inp" style="width:auto" id="newunit" aria-label="Unit"><option value="g">per 100 g</option><option value="pc">per piece</option><option value="ml">per 100 ml</option></select><button class="btn" data-act="addfood">Add food</button></div></div>
+  </section>`;
+}
+
+/* ===== AUDIT ===== */
+function sessionStats() {
+  const late = toMin(REF.lateFinish);
+  const sinceSep = M.sessions.filter(s => s.d >= "2026-09-01" && isNum(s.dur));
+  const last50 = M.sessions.filter(s => isNum(s.dur)).slice(-50);
+  const mean = a => a.length ? a.reduce((x, s) => x + s.dur, 0) / a.length : null;
+  const lateN = a => a.filter(s => s.t1 > late).length;
+  return { sinceSep, last50, meanSep: mean(sinceSep), mean50: mean(last50), lateSep: lateN(sinceSep), late50: lateN(last50) };
+}
+function toMin(hhmm) { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; }
+function missedSessions() {
+  const out = []; const end = TODAY; const lastD = M.sessions.length ? M.sessions[M.sessions.length - 1].d : "";
+  for (let d = REF.blockStart; d <= end; d = addDays(d, 1)) {
+    const k = dow(d); if (![1, 2, 4, 5].includes(k)) continue;
+    const day = PLAN[k], on = M.sessions.filter(s => s.d === d);
+    let st;
+    if (on.length) st = ["ok", "Done " + hm(on[0].t0) + " to " + hm(on[0].t1)];
+    else if (d === TODAY) st = ["neutral", "Today, not imported yet"];
+    else if (d > lastD) st = ["neutral", "After your last Hevy export"];
+    else { const moved = M.sessions.find(s => weekStart(s.d) === weekStart(d) && s.d !== d && s.title && s.title.toLowerCase().includes(day.name.toLowerCase().split(" ")[0])); st = moved ? ["warn", "Moved to " + dshort(moved.d)] : ["bad", "Missed"]; }
+    // template check: did the logged session contain the plan's lifts?
+    let miss = [];
+    if (on.length) { const exs = new Set(on.flatMap(s => s.blocks.map(b => b.ex))); miss = day.items.filter(it => it.ex && !exs.has(it.ex)).map(it => exDef(it.ex).name); }
+    out.push({ d, day, st, miss });
+  }
+  // current phase, before the block: sessions per week against 4 lifting days (assumption)
+  const weeks = {}; M.sessions.filter(s => s.phase === "C" && s.d < REF.blockStart).forEach(s => { const w = weekStart(s.d); weeks[w] = (weeks[w] || 0) + 1; });
+  const short = []; for (let w = weekStart(REF.currentFrom); w < REF.blockStart; w = addDays(w, 7)) { const n = weeks[w] || 0; if (n < 4) short.push({ w, n }); }
+  return { out, short };
+}
+function viewAudit() {
+  const chkTable = S.checks.map((c, i) => { const opts = STATUS_OPTS[c.kind]; const done = ["Taking", "Done", "Purchased"].includes(c.status);
+    return `<tr><td>${chip(done ? "ok" : c.status === "Stopped" ? "neutral" : c.status === "In progress" ? "info" : "warn", c.status)}</td><td><b>${esc(c.name)}</b><div class="note">${esc(c.detail)}</div></td><td class="small mute">${c.kind}</td>
+      <td><select class="inp" style="width:auto" id="ck-${c.id}" aria-label="Status of ${esc(c.name)}" data-ch="check" data-i="${i}">${opts.map(o => `<option ${o === c.status ? "selected" : ""}>${o}</option>`).join("")}</select></td></tr>`; }).join("");
+  const checks = `<section class="blk" id="todo"><div class="hd"><h2>Supplements and to-dos</h2><span class="mute">From the Nutrition & Supplements sheet</span></div>
+    <div class="panel scroll"><table><thead><tr><th>Status</th><th>Item</th><th>Type</th><th>Change</th></tr></thead><tbody>${chkTable}</tbody></table>
+    <p class="note">Statuses are what the workbook says until you change them. No medical advice here; doses are copied from your sheet.</p></div></section>`;
+  if (!hasData()) return `<section class="blk"><h1>Audit</h1>${emptyNote()}</section>${checks}`;
+  const A = M.audit, impC = A.impossible.filter(x => x.phase === "C"), impM = A.impossible.filter(x => x.phase === "M");
+  const provC = A.inc.filter(x => x.phase === "C" && x.cls === "proven"), jumpC = A.inc.filter(x => x.phase === "C" && x.cls === "jump");
+  const S2 = sessionStats(), MS = missedSessions();
+  const blocksSince = from => M.sessions.filter(s => s.d >= from).flatMap(s => s.blocks.map(b => Object.assign({ s }, b))).filter(b => exDef(b.ex).load !== "BW" || b.ex === "ppt");
+  const noteFrom = blocksSince(REF.farmerNoteFrom), noteBlock = blocksSince(REF.blockStart);
+  const lacks = b => [b.form == null && "Form", b.fatigue == null && "Fatigue", !b.tempo && !exDef(b.ex).timed && "tempo"].filter(Boolean);
+  const notesEver = M.sessions.reduce((a, s) => a + s.blocks.filter(b => b.note).length, 0);
+  const statedRows = Object.entries(STATED_CURRENT).map(([id, w]) => { const ser = M.series[id] || []; const last = ser.filter(b => b.phase !== "A").pop(); const hw = last ? (last.workW ?? (last.invalid[0] ?? null)) : null; return { id, w, hw, d: last ? last.d : null }; }).filter(r => r.hw !== r.w);
+  const wpu10 = (M.series.wpu || []).filter(b => b.invalid.includes(10)).length;
+  const contradictions = [
+    ...statedRows.map(r => `${exDef(r.id).name}: you listed ${r.w} kg as the current Hevy weight; the export's last log (${dmd(r.d)}) is ${r.hw ?? "none"} kg${isValidW(r.hw, exDef(r.id).load) ? "" : ", which does not exist"}.`),
+    wpu10 ? `Weighted Push-Up was logged at 10 kg in ${wpu10} sessions. 10 kg is not a valid combined weight in the Equipment sheet. If this load is not the dumbbell pair, change its load type below and it stops being flagged.` : null,
+    "Nutrition sheet: lift days 2,350-2,450 kcal and protein 145-155 g, with whey isolate \"Taking\". Your message and meal_prep.html: flat 2,200-2,300 kcal, 145-160 g protein, no whey. The dashboard follows your message.",
+    "Exercise Guide row for Farmer's Walk says \"Log distance, not time\"; the Block 2 Plan, Weekly Log and Equipment note say log duration. Hevy still holds distance only (40 to 50 m).",
+    `Session length: the workbook's "28 of 50 sessions finished after 12:15" covers the last 50 sessions (from ${S2.last50[0] ? dmd(S2.last50[0].d) : "-"}), not "since Sep 1". Since Sep 1 it is ${S2.lateSep} of ${S2.sinceSep.length}.`,
+    "The Weekly Log has no Form, Fatigue or logged weights entered, and Body Metrics has only the 28 Sep baseline. Nothing in the workbook can clear a gate yet.",
+    "Mon 28 Sep and Tue 29 Sep were logged under the old template (Shoulder Press, no back-off row), as the Weekly Log notes."
+  ].filter(Boolean);
+  const loadSel = id => `<select class="inp" style="width:auto" id="lo-${id}" aria-label="Load type for ${esc(exDef(id).name)}" data-ch="loadov" data-k="${id}">${["Pair", "Single", "BW", "Free"].map(o => `<option ${exDef(id).load === o ? "selected" : ""} value="${o}">${o === "Free" ? "Other load (no check)" : o === "Pair" ? "Dumbbell pair" : o === "Single" ? "Single dumbbell" : "Bodyweight"}</option>`).join("")}</select>`;
+  const impTable = list => `<div class="scroll"><table><thead><tr><th>Date</th><th>Exercise</th><th class="n">Logged kg</th><th class="n">Sets</th><th>Nearest valid</th></tr></thead><tbody>${list.map(x => { const def = exDef(x.ex); return `<tr><td class="num small">${dmd(x.d)} ${x.d.slice(0, 4)}</td><td>${esc(def.name)}</td><td class="n">${x.w.join(", ")}</td><td class="n">${x.sets}</td><td class="small">${x.w.map(w => (nextDown(w, def.load) ?? "-") + " or " + (nextUp(w, def.load) ?? "-")).join("; ")}</td></tr>`; }).join("")}</tbody></table></div>`;
+  const impSummary = list => { const g = {}; list.forEach(x => x.w.forEach(w => { const k = exDef(x.ex).name + " " + w + " kg"; g[k] = (g[k] || 0) + 1; })); return Object.entries(g).map(([k, n]) => chip("bad", k + (n > 1 ? " x" + n : ""))).join(" "); };
+  const late = toMin(REF.lateFinish), shift = toMin(REF.shiftStart);
+  const lastS = M.sessions.filter(s => isNum(s.t1)).slice(-24);
+  const chart = (() => { const w = 640, h = 190, L = 50, R = 10, T = 10, B = 26, lo = 600, hi = 840; const X = i => L + (i + 0.5) * (w - L - R) / lastS.length, Y = m => T + (hi - Math.min(hi, Math.max(lo, m))) / (hi - lo) * (h - T - B);
+    return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Session start and end times">
+      ${[600, 660, 720, 780, 840].map(m => `<line class="grid" x1="${L}" x2="${w - R}" y1="${Y(m)}" y2="${Y(m)}"/><text x="${L - 6}" y="${Y(m) + 4}" text-anchor="end">${hm(m).replace(":00", "")}</text>`).join("")}
+      <line x1="${L}" x2="${w - R}" y1="${Y(late)}" y2="${Y(late)}" stroke="var(--warn)" stroke-dasharray="4 3"/><text x="${w - R}" y="${Y(late) - 4}" text-anchor="end">12:15</text>
+      <line x1="${L}" x2="${w - R}" y1="${Y(shift)}" y2="${Y(shift)}" stroke="var(--bad)" stroke-width="1.5"/><text x="${w - R}" y="${Y(shift) - 4}" text-anchor="end">shift 1:00</text>
+      ${lastS.map((s, i) => `<line x1="${X(i)}" x2="${X(i)}" y1="${Y(s.t0)}" y2="${Y(s.t1)}" stroke="${s.t1 > late ? "var(--warn)" : "var(--chart-a)"}" stroke-width="7" stroke-linecap="round"><title>${dmd(s.d)}: ${hm(s.t0)} to ${hm(s.t1)}, ${s.dur} min</title></line>`).join("")}
+      ${lastS.map((s, i) => i % 4 === 0 ? `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${dmd(s.d)}</text>` : "").join("")}
+    </svg>`; })();
+  return `<section class="blk"><div class="hd"><div><div class="eyebrow">Audit</div><h1>Compliance and data quality</h1></div></div>
+    <div class="strip"><span class="stat">Impossible weights, current phase <b>${impC.length}</b> sessions</span><span class="stat">Gate violations <b>${provC.length}</b> provable · <b>${jumpC.length}</b> large jumps</span>
+      <span class="stat">Notes with F/Ft/T <b>${notesEver}</b> ever</span><span class="stat">Mean session <b>${fmt(S2.meanSep)} min</b> since 1 Sep</span><span class="stat">Ended after 12:15 <b>${S2.late50}/${S2.last50.length}</b> last 50</span></div>
+    <div class="panel stack"><h3>Where your files disagree</h3><ul class="plain">${contradictions.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+      <div class="row small"><span class="lab">Weighted Push-Up load type</span>${loadSel("wpu")}</div></div>
+    <div class="panel stack"><div class="hd"><h3>Impossible weights</h3><span class="mute">Probable logging errors. Era A is not checked (different dumbbell set).</span></div>
+      <div><span class="lab">Current phase</span><div class="row">${impSummary(impC) || chip("ok", "none")}</div></div>
+      <details><summary>Current phase, every session (${impC.length})</summary>${impTable(impC)}</details>
+      <div><span class="lab">Marathon build</span><div class="row">${impSummary(impM) || chip("ok", "none")}</div></div>
+      <details><summary>Marathon build, every session (${impM.length})</summary>${impTable(impM)}</details></div>
+    <div class="panel stack"><div class="hd"><h3>Gate violations, current phase</h3><a href="#prog" data-act="goto-prog">Full audit in Training</a></div>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Exercise</th><th class="n">kg</th><th>What was missing</th></tr></thead><tbody>
+      ${provC.concat(jumpC).map(x => `<tr><td class="num small">${dmd(x.d)}</td><td>${esc(exDef(x.ex).name)}</td><td class="n">${x.from} to ${x.to}</td><td>${x.proven.map(t => chip("bad", t)).join(" ")} ${x.missing.map(t => chip(t.startsWith("jumped") ? "warn" : "neutral", t)).join(" ")}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="panel stack"><div class="hd"><h3>Missing Form, Fatigue and tempo</h3><span class="mute">Format: F5 Ft3 T3-1-1 in the Hevy exercise note</span></div>
+      <p>Hevy notes containing any of these, whole history: <b class="num">${notesEver}</b>. Since Block 2 started: <b class="num">${noteBlock.filter(b => lacks(b).length).length}</b> of ${noteBlock.length} exercise entries lack at least one. From ${dmd(REF.farmerNoteFrom)} (new note format): <b class="num">${noteFrom.filter(b => lacks(b).length).length}</b> of ${noteFrom.length}.</p>
+      ${noteFrom.filter(b => lacks(b).length).length ? `<div class="scroll"><table><tbody>${noteFrom.filter(b => lacks(b).length).map(b => `<tr><td class="num small">${dmd(b.d)}</td><td>${esc(exDef(b.ex).name)}</td><td>${lacks(b).map(t => chip("warn", t + " not logged")).join(" ")}</td></tr>`).join("")}</tbody></table></div>` : ""}</div>
+    <div class="panel stack"><div class="hd"><h3>Sessions against the plan</h3><span class="mute">Block 2 lifting days: Mon, Tue, Thu, Fri</span></div>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Planned</th><th>Status</th><th>Plan lifts not in Hevy</th></tr></thead><tbody>${MS.out.map(x => `<tr><td class="num small">${dshort(x.d)}</td><td>${esc(x.day.name)}</td><td>${chip(x.st[0], x.st[1])}</td><td class="small">${x.miss.length ? esc(x.miss.join(", ")) : x.st[0] === "ok" ? "none" : ""}</td></tr>`).join("")}</tbody></table></div>
+      ${MS.short.length ? `<p class="small">Before Block 2, current phase: weeks with fewer than 4 sessions: ${MS.short.map(x => `<span class="chip ${x.n ? "warn" : "bad"}">${dmd(x.w)}: ${x.n}</span>`).join(" ")}</p><p class="assume">Pre-block weeks are checked against 4 lifting sessions, the Upper A / Lower A / Upper B / Lower B split in Hevy.</p>` : ""}</div>
+    <div class="panel stack"><div class="hd"><h3>Session length against the 1 PM shift</h3><span class="mute">Start 10:15 AM per plan</span></div>
+      <div class="strip"><span class="stat">Mean since 1 Sep <b>${fmt(S2.meanSep)} min</b> over ${S2.sinceSep.length}</span><span class="stat">Mean last 50 <b>${fmt(S2.mean50)} min</b></span><span class="stat">Ended after 12:15 <b>${S2.lateSep}/${S2.sinceSep.length}</b> since 1 Sep · <b>${S2.late50}/${S2.last50.length}</b> last 50</span></div>
+      ${chart}<p class="note">Each bar runs from start to finish. A 10:15 start plus 108 minutes ends at 12:03, which leaves under an hour to eat and get to a 1 PM shift.</p></div>
+    ${M.unknownTitles.length ? `<div class="panel stack"><h3>Exercises not mapped to a muscle group</h3><p class="small">${M.unknownTitles.map(t => chip("warn", t)).join(" ")}</p><p class="note">These count for nothing in muscle tracking. Add them to the exercise list in the file (README, "Update the plan").</p></div>` : ""}
+  </section>${checks}`;
+}
+
+/* ===== Data drawer ===== */
+let DRAWER = false;
+function viewDrawer() {
+  const h = S.hevy;
+  return `<div class="drawer"><div class="drawer-in">
+    <div class="hd"><h2>Data</h2><button class="btn small" data-act="open-data">Close</button></div>
+    ${FLASH ? `<div class="msg ${FLASH.k}" role="status">${esc(FLASH.t)}</div>` : ""}
+    ${storageMsg ? `<div class="msg warn">${esc(storageMsg)}</div>` : ""}
+    <p class="small">${h.sets.length ? `Hevy: <b>${esc(h.file)}</b>, ${fmt(h.sets.length)} sets in ${fmt(M.sessions.length)} sessions, ${M.sessions[0] ? dmd(M.sessions[0].d) + " " + M.sessions[0].d.slice(0, 4) : ""} to ${M.sessions.length ? dmd(M.sessions[M.sessions.length - 1].d) + " " + M.sessions[M.sessions.length - 1].d.slice(0, 4) : ""}${h.skipped ? `, ${h.skipped} rows skipped` : ""}.` : "No Hevy data loaded."} Everything is saved in this browser only.</p>
+    <div class="row">
+      <label class="btn primary" for="csvfile">Import Hevy CSV</label><input type="file" id="csvfile" accept=".csv,text/csv" data-ch="csv" hidden>
+      <label class="btn" for="jsonfile">Import backup JSON</label><input type="file" id="jsonfile" accept=".json,application/json" data-ch="json" hidden>
+      <button class="btn" data-act="export-dl">Export backup JSON</button><button class="btn" data-act="export-copy">Copy backup JSON</button>
+      ${window.EMBED ? `<button class="btn" data-act="reload-embed">Reload the data built into this file</button>` : ""}
+      <button class="btn danger" data-act="reset-ask">Clear all data</button>
+    </div>
+    ${S._confirmReset ? `<div class="msg bad row">This deletes your entries, weigh-ins and prices in this browser. <button class="btn small danger" data-act="reset-all">Yes, clear everything</button><button class="btn small" data-act="reset-no">Keep my data</button></div>` : ""}
+    <textarea class="inp" id="exportbox" aria-label="Backup JSON" hidden readonly></textarea>
+    <p class="note">A new Hevy export replaces the old Hevy history; your Form, Fatigue, RPE, tempo entries, weigh-ins, prices and stock are kept.</p>
+  </div></div>`;
+}
+
+/* ===== Shell ===== */
+const TABS = [["today", "Today"], ["training", "Training"], ["body", "Body"], ["meals", "Meals"], ["audit", "Audit"]];
+function render() {
+  const y = window.scrollY;
+  $("#app").innerHTML = `<header class="top"><div class="top-in">
+      <p class="brand">Kris Recomp Board<small>Block 2 · arms + chest while cutting · ${dshort(TODAY)}</small></p><span class="spacer"></span>
+      <nav class="tabs" aria-label="Sections">${TABS.map(([k, l]) => `<button class="tab" data-act="tab" data-k="${k}" ${TAB === k ? 'aria-current="page"' : ""}>${l}</button>`).join("")}</nav>
+      <div class="tools"><label for="theme" class="lab" hidden>Theme</label><select class="btn" id="theme" aria-label="Theme" data-ch="theme">${["auto", "light", "dark"].map(t => `<option value="${t}" ${THEME === t ? "selected" : ""}>${t === "auto" ? "Auto theme" : t === "light" ? "Light" : "Dark"}</option>`).join("")}</select>
+        <button class="btn" data-act="open-data" aria-expanded="${DRAWER}">Data</button></div></div></header>
+    ${DRAWER ? viewDrawer() : ""}
+    <main id="main">${TAB === "today" ? viewToday() : TAB === "training" ? viewTraining() : TAB === "body" ? viewBody() : TAB === "meals" ? viewMeals() : viewAudit()}</main>`;
+  window.scrollTo(0, y);
+}
+let THEME = "auto";
+function applyTheme() { if (THEME === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", THEME); }
+
+function setEntry(k, f, v) {
+  const e = S.entries[k] = S.entries[k] || {};
+  if (v === "" || v == null || (typeof v === "number" && !isFinite(v))) delete e[f]; else e[f] = v;
+  if (!Object.keys(e).length) delete S.entries[k];
+}
+function commit(rebuild) { save(); if (rebuild) buildModel(); render(); }
+function download(name, text) {
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "application/json" })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); return true; } catch (e) { return false; }
+}
+function exportText() { const o = clone(S); delete o._confirmReset; return JSON.stringify(o); }
+
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("[data-act]"); if (!t) return;
+  const a = t.dataset.act, k = t.dataset.k;
+  if (a === "tab") { TAB = k; try { history.replaceState(null, "", "#" + k); } catch (e) {} render(); window.scrollTo(0, 0); return; }
+  if (a === "open-data") { DRAWER = !DRAWER; FLASH = null; render(); return; }
+  if (a === "goto-prog") { ev.preventDefault(); TAB = "training"; render(); setTimeout(() => { const el = document.getElementById("prog"); el && el.scrollIntoView(); }, 0); return; }
+  if (a === "seg") { const cur = (S.entries[k] || {})[t.dataset.f]; setEntry(k, t.dataset.f, cur === +t.dataset.v ? null : +t.dataset.v); return commit(true); }
+  if (a === "bmfocus") { BM_FOCUS = BM_FOCUS === k ? "" : k; render(); const el = document.getElementById("bodymap"); el && el.scrollIntoView({ block: "start" }); return; }
+  if (a === "mview") { S.settings.muscleView = t.dataset.v; return commit(false); }
+  if (a === "add-weigh") { const d = $("#bw-d").value, kg = parseFloat($("#bw-kg").value), bf = parseFloat($("#bw-bf").value); if (!d || !isFinite(kg)) { alertMsg("Enter a date and a weight."); return; }
+    S.body.daily = S.body.daily.filter(x => x.d !== d); S.body.daily.push({ d, kg, bf: isFinite(bf) ? bf : null }); S.body.daily.sort((a, b) => a.d.localeCompare(b.d)); return commit(false); }
+  if (a === "del-weigh") { S.body.daily = S.body.daily.filter(x => x.d !== k); return commit(false); }
+  if (a === "add-meas") { const d = $("#ms-d").value, arm = parseFloat($("#ms-arm").value), ch = parseFloat($("#ms-chest").value), bf = parseFloat($("#ms-bf").value); if (!d || (!isFinite(arm) && !isFinite(ch) && !isFinite(bf))) { alertMsg("Enter a date and at least one measurement."); return; }
+    S.body.weekly = S.body.weekly.filter(x => x.d !== d); S.body.weekly.push({ d, arm: isFinite(arm) ? arm : null, chest: isFinite(ch) ? ch : null, bf: isFinite(bf) ? bf : null }); S.body.weekly.sort((a, b) => a.d.localeCompare(b.d)); return commit(false); }
+  if (a === "del-meas") { S.body.weekly = S.body.weekly.filter(x => x.d !== k); return commit(false); }
+  if (a === "mealdel") { const m = S.meals.find(x => x.id === t.dataset.m); m.items.splice(+t.dataset.i, 1); return commit(false); }
+  if (a === "meals-reset") { S.meals = clone(MEALS_SEED); return commit(false); }
+  if (a === "addfood") { const n = $("#newfood").value.trim(); if (!n) return; S.foods.push({ id: "f" + Date.now(), name: n, unit: $("#newunit").value, price: null, priceQty: $("#newunit").value === "pc" ? 1 : null, usable: 100, ratio: 1, per100: { kcal: null, p: null, c: null, f: null, fiber: null, sugar: null }, src: "Added by you" }); return commit(false); }
+  if (a === "export-dl") { const ok = download("kris-recomp-backup-" + TODAY + ".json", exportText()); FLASH = { k: ok ? "ok" : "warn", t: ok ? "Backup file created. If nothing downloaded, use Copy backup JSON." : "Download is blocked here. Use Copy backup JSON." }; render(); return; }
+  if (a === "export-copy") { const txt = exportText(); const box = $("#exportbox"); box.hidden = false; box.value = txt;
+    const fin = ok => { FLASH = { k: ok ? "ok" : "info", t: ok ? "Backup JSON copied (" + fmt(txt.length / 1024) + " KB). Paste it into a note or file." : "Copy is blocked here. The JSON is in the box below; select it and copy." }; const v = box.value; render(); const b2 = $("#exportbox"); if (b2 && !ok) { b2.hidden = false; b2.value = v; b2.select(); } };
+    try { navigator.clipboard.writeText(txt).then(() => fin(true), () => fin(false)); } catch (e) { fin(false); } return; }
+  if (a === "reset-ask") { S._confirmReset = true; render(); return; }
+  if (a === "reset-no") { delete S._confirmReset; render(); return; }
+  if (a === "reset-all") { S = freshState(); try { localStorage.removeItem(KEY); } catch (e) {} buildModel(); FLASH = { k: "ok", t: "All data cleared." }; render(); return; }
+  if (a === "reload-embed") { const keep = { entries: S.entries, done: S.done, eaten: S.eaten, foods: S.foods, meals: S.meals, stock: S.stock, checks: S.checks, body: S.body, goals: S.goals };
+    applyEmbed(); Object.assign(S, keep); if (!S.goals.startDate && window.EMBED.goals) S.goals = clone(window.EMBED.goals); save(); buildModel(); FLASH = { k: "ok", t: "Reloaded the Hevy data built into this file. Your entries were kept." }; render(); return; }
+});
+function alertMsg(t) { FLASH = { k: "bad", t }; DRAWER = true; render(); }
+
+document.addEventListener("change", ev => {
+  const t = ev.target; const c = t.dataset && t.dataset.ch; if (!c) return;
+  const v = t.value, k = t.dataset.k, f = t.dataset.f, n = parseFloat(v);
+  if (c === "theme") { THEME = v; try { localStorage.setItem(KEY + "-theme", v); } catch (e) {} applyTheme(); return; }
+  if (c === "done") { if (t.checked) S.done[k] = true; else delete S.done[k]; return commit(false); }
+  if (c === "entry") { setEntry(k, f, f === "tempo" ? v.trim() : f === "repsDone" ? v : (v === "" ? null : n)); return commit(true); }
+  if (c === "bmfocus") { BM_FOCUS = v; render(); return; }
+  if (c === "bmday") { BM_DAY = v; render(); return; }
+  if (c === "viewdate") { if (v) VIEW_DATE = v; render(); return; }
+  if (c === "eat") { const d = VIEW_DATE; S.eaten[d] = S.eaten[d] || {}; if (t.checked) S.eaten[d][k] = true; else delete S.eaten[d][k]; return commit(false); }
+  if (c === "progphase") { S.settings.progPhase = v; return commit(false); }
+  if (c === "checkw") { S.checkW = isFinite(n) ? n : null; return commit(false); }
+  if (c === "checkm") { S.checkMode = v; return commit(false); }
+  if (c === "goal") { S.goals[f] = t.type === "date" ? v : (v === "" ? null : n); return commit(false); }
+  if (c === "mealamt") { const m = S.meals.find(x => x.id === t.dataset.m); if (isFinite(n) && n >= 0) m.items[+t.dataset.i][1] = n; return commit(false); }
+  if (c === "mealadd") { if (!v) return; const m = S.meals.find(x => x.id === t.dataset.m); const fd = foodById(v); m.items.push([v, fd.unit === "pc" ? 1 : 100]); return commit(false); }
+  if (c === "food") { const fd = S.foods[+t.dataset.i]; const val = v === "" ? null : (isFinite(n) ? n : null); if (f.startsWith("m.")) fd.per100[f.slice(2)] = val; else fd[f] = val; return commit(false); }
+  if (c === "stock") { S.stock[f] = t.type === "date" || f === "startMeal" ? v : (v === "" ? null : n); if (f === "chickenG" || f === "chickenCost" || f === "chickenUsable") { const ch = foodById("chicken"); if (f === "chickenG") ch.priceQty = S.stock.chickenG; if (f === "chickenCost") ch.price = S.stock.chickenCost; if (f === "chickenUsable") ch.usable = S.stock.chickenUsable; } return commit(false); }
+  if (c === "check") { S.checks[+t.dataset.i].status = v; return commit(false); }
+  if (c === "loadov") { if (v === EX[k].load) delete S.loadOverride[k]; else S.loadOverride[k] = v; return commit(true); }
+  if (c === "csv" || c === "json") {
+    const file = t.files && t.files[0]; if (!file) return;
+    const rd = new FileReader();
+    rd.onerror = () => { FLASH = { k: "bad", t: "Could not read that file." }; render(); };
+    rd.onload = () => {
+      const text = String(rd.result || "");
+      if (c === "csv") {
+        const r = importHevyCSV(text, file.name);
+        if (!r.ok) { FLASH = { k: "bad", t: "Import failed, nothing changed. " + r.error }; render(); return; }
+        S.hevy = { sets: r.sets, file: r.fileName, importedAt: new Date().toISOString(), skipped: r.skipped.length };
+        save(); buildModel();
+        FLASH = { k: r.skipped.length ? "warn" : "ok", t: `Imported ${fmt(r.sets.length)} sets from ${fmt(M.sessions.length)} sessions.` + (r.skipped.length ? ` Skipped ${r.skipped.length} unreadable rows (first: line ${r.skipped[0].line}, ${r.skipped[0].why}).` : "") + (r.unclosed ? " The file ends inside a quoted field, so the last row may be cut." : "") };
+      } else {
+        try { const o = JSON.parse(text); if (!o || typeof o !== "object" || !o.hevy || !Array.isArray(o.hevy.sets)) throw new Error("not a backup from this dashboard");
+          S = Object.assign(freshState(), o); save(); buildModel(); FLASH = { k: "ok", t: "Backup restored: " + fmt(S.hevy.sets.length) + " Hevy sets, " + S.body.daily.length + " weigh-ins." };
+        } catch (e) { FLASH = { k: "bad", t: "Import failed, nothing changed. That JSON is " + e.message + "." }; }
+      }
+      render();
+    };
+    rd.readAsText(file);
+  }
+});
+
+function boot() {
+  try { THEME = localStorage.getItem(KEY + "-theme") || "auto"; } catch (e) {}
+  applyTheme();
+  const src = load();
+  const h = (location.hash || "").slice(1); if (TABS.some(x => x[0] === h)) TAB = h;
+  buildModel();
+  if (src === "empty" && !hasData()) DRAWER = false;
+  render();
+}
+boot();
+
+</script>
+</body>
+</html>
