@@ -19,6 +19,18 @@ Write Form, Fatigue and tempo in each Hevy exercise note as `F5 Ft3 T3-1-1` (ord
 
 For Farmer's Walk, log duration in seconds (a timed exercise in Hevy, or the Duration field on Today). Distance cannot show time progress.
 
+## Log your training (Log tab)
+
+The Log works like the Weekly Log sheet: one row per exercise with Sets x reps, Plan kg, Logged kg, Per hand, Form, Fatigue, RPE, Reps done?, Tempo (or seconds for Farmer's Walk), Ready?, vs last time and your notes. It covers the last two months through 31 December. Tap a week to open it; the current week opens by itself.
+
+- Hevy fills what it can (weights, reps, notes like `F5 Ft3 T3-1-1`). Anything you type wins.
+- Did a lift that is not on the plan? Use "Add an exercise to this day". Pick "New exercise..." to create one with its muscles, so it counts in weekly sets and the body map.
+- Switched exercises for good? Use "Change exercises" on the first day of the new routine. Every later week of that weekday follows it; earlier days keep what you did. The day shows what is new and what was dropped, and Training lists every change.
+
+## Runs (Wednesday, Saturday, Sunday)
+
+Use "Log a run" on a run day ("Add run" on any other day) and type the numbers from the Apple Fitness summary: time, distance, kcal, elevation, power, cadence, pace, heart rate, Effort, minutes in each zone, post-workout heart rate, and the running form averages. Times are minutes:seconds. The Runs tab compares your latest run with the ones before it and charts pace, heart rate, metres per heartbeat and cadence.
+
 ## Back up and restore
 
 - **Data, Export backup JSON** downloads a file. If the browser blocks the download (for example inside a claude.ai preview), use **Copy backup JSON** and paste it into a note.
