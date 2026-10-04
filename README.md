@@ -56,6 +56,10 @@ The plan lives at the top of the script in the HTML file, in plain lists:
 
 Edit with any text editor, save, reload. If you add a new lift in Hevy, add its exact Hevy title to an `EXERCISES` entry, or it shows up in the Audit tab as "not mapped". For the public copy, push the edited file to GitHub as usual.
 
+## Password
+
+The site asks for a password. The app inside `index.html` is encrypted (AES-GCM, key from the password with PBKDF2, 600,000 rounds), so the plan cannot be read from the page source without it. Tick "Remember on this device" to skip the prompt next time; clearing the browser's site data asks again. Because the code is encrypted, `index.html` can no longer be edited by hand: change the plan in your personal copy, or ask Claude to rebuild and push.
+
 ## GitHub Pages
 
 Settings, Pages, Source: Deploy from a branch, Branch: main, folder / (root). The site appears at https://kddaclan.github.io/fitness-dashboard/. To update, replace `index.html` and push.
